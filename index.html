@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio</title>
+  <link rel="stylesheet" href="style.css?v=4" />
+</head>
+<body class="loading">
+
+  <!-- Loading Screen -->
+  <div id="loader">
+    <div class="loader-img-wrap">
+      <img class="loader-base" src="images/마우스모양.png" alt="" />
+      <div class="loader-fill-layer">
+        <img class="loader-fill" src="images/마우스모양.png" alt="" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Left Navigation -->
+  <nav id="nav">
+    <div class="nav-top">
+      <a href="#" class="nav-link active">
+        <span class="dot-indicator"></span>Projects
+      </a>
+      <a href="https://www.instagram.com/d.t.b.archive/" target="_blank" rel="noopener" class="nav-link">About</a>
+      <a href="#" class="nav-link">Shop</a>
+    </div>
+    <ul class="project-nav" id="projectNav"></ul>
+  </nav>
+
+  <!-- Right scroll position dots -->
+  <div class="scroll-dots" id="scrollDots"></div>
+
+  <!-- Main scrollable content -->
+  <main id="main"></main>
+
+  <!-- Backdrop overlay -->
+  <div id="overlay"></div>
+
+  <!-- Detail Panel (slides up) -->
+  <aside id="panel">
+    <div class="panel-inner">
+      <button class="panel-close" id="panelClose">✕</button>
+
+      <!-- Image column -->
+      <div class="panel-img-col">
+        <img id="panelImg" src="" alt="" />
+      </div>
+
+      <!-- Text column -->
+      <div class="panel-text-col">
+        <p class="panel-index" id="panelIndex">01</p>
+        <h2 class="panel-title" id="panelTitle">Project Name</h2>
+        <p class="panel-category" id="panelCategory">Category · Year</p>
+        <p class="panel-desc" id="panelDesc"></p>
+        <div class="panel-tags" id="panelTags"></div>
+        <span class="panel-close-text" id="panelCloseText">Close</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Newsletter -->
+  <button class="newsletter-btn" id="newsletterBtn">Sign up to our newsletter</button>
+
+  <div id="custom-cursor">
+    <img src="images/마우스모양.png" alt="" />
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
