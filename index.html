@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Portfolio</title>
-  <link rel="stylesheet" href="style.css?v=4" />
+  <link rel="stylesheet" href="style.css?v=7" />
 </head>
 <body class="loading">
 
@@ -39,25 +39,39 @@
   <!-- Backdrop overlay -->
   <div id="overlay"></div>
 
-  <!-- Detail Panel (slides up) -->
+  <!-- Detail Panel (slides up, full screen) -->
   <aside id="panel">
     <div class="panel-inner">
+
       <button class="panel-close" id="panelClose">✕</button>
 
-      <!-- Image column -->
-      <div class="panel-img-col">
-        <img id="panelImg" src="" alt="" />
-      </div>
-
-      <!-- Text column -->
+      <!-- Left: text -->
       <div class="panel-text-col">
-        <p class="panel-index" id="panelIndex">01</p>
-        <h2 class="panel-title" id="panelTitle">Project Name</h2>
-        <p class="panel-category" id="panelCategory">Category · Year</p>
-        <p class="panel-desc" id="panelDesc"></p>
-        <div class="panel-tags" id="panelTags"></div>
+        <div class="panel-text-top">
+          <p class="panel-index" id="panelIndex">01</p>
+          <h2 class="panel-title" id="panelTitle">Project Name</h2>
+        </div>
+        <div class="panel-text-body">
+          <p class="panel-desc" id="panelDesc"></p>
+          <div class="panel-tags" id="panelTags"></div>
+        </div>
         <span class="panel-close-text" id="panelCloseText">Close</span>
       </div>
+
+      <!-- Right: two images, editorial layout -->
+      <div class="panel-images-col">
+        <div class="panel-img-portrait-wrap">
+          <img id="panelImgPortrait" src="" alt="" />
+          <div class="panel-img-caption">
+            <span id="panelImgName"></span>
+            <span id="panelImgNum"></span>
+          </div>
+        </div>
+        <div class="panel-img-landscape-wrap">
+          <img id="panelImgLandscape" src="" alt="" />
+        </div>
+      </div>
+
     </div>
   </aside>
 

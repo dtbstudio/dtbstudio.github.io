@@ -56,11 +56,8 @@ const PROJECTS = [
     details: "Photography: Studio Archive\nStyling: —\nLocation: Brussels\nFormat: Editorial",
     tags: ["Fashion", "Editorial", "Photography"],
     img: "images/Absensemodel1.png",
-    gallery: [
-      "images/Absensemodel1.png",
-      "images/Absensemodel2.png.png",
-      "images/Absensemodel3.png",
-    ],
+    imgPortrait:  "images/Absensemodel3.png",
+    imgLandscape: "images/Absensemodel2.png.png",
   },
   {
     name: "DTB Studio",
@@ -70,7 +67,8 @@ const PROJECTS = [
     details: "Client: DTB Studio\nScope: Visual Identity\nFormat: Print + Digital\nDelivery: 2024",
     tags: ["Branding", "Typography", "Identity"],
     img: "images/dtbstudio.png",
-    gallery: ["images/dtbstudio.png"],
+    imgPortrait:  "images/dtbstudio.png",
+    imgLandscape: "images/dtbstudio.png",
   },
 ];
 
@@ -124,6 +122,7 @@ const sections = document.querySelectorAll(".project-section");
 const navItems = document.querySelectorAll(".project-nav li");
 const sDots    = document.querySelectorAll(".sdot");
 
+// Fires when section crosses the CENTER band of the viewport (-40% top/bottom = 20% center strip)
 const io = new IntersectionObserver(entries => {
   entries.forEach(entry => {
     if (!entry.isIntersecting) return;
@@ -132,9 +131,19 @@ const io = new IntersectionObserver(entries => {
     navItems.forEach((n, j) => n.classList.toggle("active", j === i));
     sDots.forEach((d, j) => d.classList.toggle("active", j === i));
   });
-}, { threshold: 0.45 });
+}, { rootMargin: "-40% 0px -40% 0px", threshold: 0 });
 
 sections.forEach(s => io.observe(s));
+
+// bg-title observed separately — wider band so it never gets cut off on mobile
+const bgTitleObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    const title = entry.target.querySelector(".bg-title");
+    if (title) title.dataset.visible = entry.isIntersecting ? "1" : "0";
+  });
+}, { rootMargin: "0px", threshold: 0 });
+
+sections.forEach(s => bgTitleObserver.observe(s));
 
 navItems[0]?.classList.add("active");
 sDots[0]?.classList.add("active");
@@ -166,17 +175,24 @@ function revealLoop() {
       wrap.style.transform = `translateY(${((1 - state.cur) * 60).toFixed(2)}px)`;
     }
 
-    // ── bg-title: bell-curve opacity based on viewport center ──
-    const secCenter  = rect.top + rect.height / 2;
-    const dist       = Math.abs(secCenter - wh / 2);
-    const titleTarget = Math.max(0, 1 - dist / (wh * 0.55));
-
-    // lerp title opacity — slightly faster than img for layered feel
-    if (!state.titleCur) state.titleCur = 0;
-    state.titleCur += (titleTarget - state.titleCur) * 0.055;
-
+    // ── bg-title: bell-curve opacity, only when section is in DOM view ──
     const title = sec.querySelector(".bg-title");
-    if (title) title.style.opacity = state.titleCur.toFixed(4);
+    if (title) {
+      const isVisible = title.dataset.visible !== "0";
+      const secCenter = rect.top + rect.height / 2;
+      const dist      = Math.abs(secCenter - wh / 2);
+      // wider detection range (0.75) so mobile never clips it to 0 prematurely
+      const titleTarget = isVisible
+        ? Math.max(0, 1 - dist / (wh * 0.75))
+        : 0;
+
+      if (!state.titleCur) state.titleCur = 0;
+      state.titleCur += (titleTarget - state.titleCur) * 0.055;
+
+      title.style.opacity = state.titleCur.toFixed(4);
+      const alpha = (0.07 + state.titleCur * 0.83).toFixed(4);
+      title.style.color = `rgba(0,0,0,${alpha})`;
+    }
   });
 
   requestAnimationFrame(revealLoop);
@@ -213,14 +229,15 @@ const panelClose = document.getElementById("panelClose");
 
 function openPanel(i) {
   const p = PROJECTS[i];
-  document.getElementById("panelIndex").textContent    = `0${i + 1}`;
-  document.getElementById("panelTitle").textContent    = p.name;
-  document.getElementById("panelCategory").textContent = `${p.category} · ${p.year}`;
-  document.getElementById("panelDesc").textContent     = p.desc;
 
-  const imgEl = document.getElementById("panelImg");
-  imgEl.src = p.img;
-  imgEl.alt = p.name;
+  document.getElementById("panelIndex").textContent = `0${i + 1}`;
+  document.getElementById("panelTitle").textContent = p.name;
+  document.getElementById("panelDesc").textContent  = p.desc;
+  document.getElementById("panelImgName").textContent = p.name;
+  document.getElementById("panelImgNum").textContent  = `0${i + 1}`;
+
+  document.getElementById("panelImgPortrait").src  = p.imgPortrait;
+  document.getElementById("panelImgLandscape").src = p.imgLandscape;
 
   const tagsEl = document.getElementById("panelTags");
   tagsEl.innerHTML = "";
