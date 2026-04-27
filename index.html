@@ -61,9 +61,10 @@
       75%  { transform: translateX(-2px) scale(0.98, 1.02); }
       100% { transform: translateX(0) scale(1, 1); opacity: 1; }
     }
-
-    .jelly { animation: jelly 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
-    .jelly-big { animation: jellyBig 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
+    @keyframes expandDown {
+      0%   { opacity: 0; transform: translateY(-6px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
 
     #intro {
       position: fixed; inset: 0;
@@ -79,11 +80,9 @@
     }
     #folder-img:hover { transform: scale(1.08); }
     #folder-img.clicking { animation: jellyBig 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
-
     #folder-label {
       font-size: 18px; font-weight: 600; color: #1a1a1a;
-      padding: 2px 6px; border-radius: 4px;
-      letter-spacing: 0;
+      padding: 2px 6px; border-radius: 4px; letter-spacing: 0;
       transition: background 0.1s, color 0.1s;
     }
     #folder-label.selected { background: #0064d3; color: #fff; }
@@ -126,6 +125,7 @@
       background: rgba(228,228,228,0.8);
       border-right: 1px solid #c8c8c8;
       padding: 12px 0; flex-shrink: 0;
+      overflow-y: auto;
     }
     .sidebar-heading {
       font-size: 11px; font-weight: 600; color: #888;
@@ -148,40 +148,47 @@
     }
     .sidebar-item:hover .sidebar-icon { transform: scale(1.2) rotate(-5deg); }
 
-    .finder-main { flex: 1; display: flex; overflow: hidden; }
+    .sidebar-folder {
+      display: flex; align-items: center; gap: 8px;
+      padding: 5px 16px; font-size: 13px; color: #1a1a1a;
+      border-radius: 6px; margin: 0 6px;
+      cursor: none;
+      transition: background 0.15s, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .sidebar-folder:hover { background: rgba(0,0,0,0.06); transform: scale(1.03) translateX(3px); }
+    .sidebar-folder.active { background: #0064d3; color: #fff; }
+    .folder-arrow {
+      font-size: 10px; width: 12px;
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: inline-block;
+    }
+    .folder-arrow.open { transform: rotate(90deg); }
 
-    .file-list {
-      width: 220px; min-width: 220px;
-      border-right: 1px solid #d0d0d0;
-      overflow-y: auto; background: #fafafa;
-      padding: 8px 0; flex-shrink: 0;
+    .folder-children {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .file-section-label {
-      font-size: 11px; font-weight: 600; color: #aaa;
-      text-transform: uppercase; letter-spacing: 0.5px;
-      padding: 8px 16px 4px;
+    .folder-children.open { max-height: 300px; }
+    .folder-child-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 4px 16px 4px 36px;
+      font-size: 12px; color: #1a1a1a;
+      border-radius: 6px; margin: 0 6px;
+      cursor: none;
+      transition: background 0.15s, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: expandDown 0.3s ease;
     }
-    .file-item {
-      display: flex; align-items: center; gap: 10px;
-      padding: 6px 16px; cursor: none;
-      transition: background 0.1s, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-      border-radius: 4px; margin: 0 4px;
+    .folder-child-item:hover { background: rgba(0,0,0,0.06); transform: translateX(3px); }
+    .folder-child-item.active { background: #0064d3; color: #fff; }
+    .child-thumb {
+      width: 24px; height: 24px; border-radius: 4px;
+      background: #e0e0e0; overflow: hidden; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 12px;
     }
-    .file-item:hover { background: rgba(0,0,0,0.05); transform: scale(1.02); }
-    .file-item.selected { background: #0064d3; color: white; }
-    .file-item.selected .file-meta { color: rgba(255,255,255,0.7); }
-    .file-item.jelly-click { animation: jelly 0.4s ease; }
-    .file-thumb {
-      width: 36px; height: 36px; border-radius: 6px;
-      background: #e0e0e0; flex-shrink: 0; overflow: hidden;
-      display: flex; align-items: center; justify-content: center; font-size: 18px;
-      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .file-item:hover .file-thumb { transform: scale(1.1) rotate(3deg); }
-    .file-thumb img { width: 100%; height: 100%; object-fit: cover; }
-    .file-info { flex: 1; min-width: 0; }
-    .file-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .file-meta { font-size: 11px; color: #888; margin-top: 1px; }
+    .child-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+    .finder-main { flex: 1; display: flex; overflow: hidden; }
 
     .project-viewer {
       flex: 1; display: flex; flex-direction: column;
@@ -193,8 +200,7 @@
       background: #ffffff; overflow: hidden; padding: 24px;
     }
     .main-image-area img {
-      max-width: 100%; max-height: 100%;
-      object-fit: contain;
+      max-width: 100%; max-height: 100%; object-fit: contain;
       transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
       animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
@@ -212,26 +218,20 @@
     .info-heading { font-size: 12px; font-weight: 700; color: #1a1a1a; margin-bottom: 8px; margin-top: 16px; }
     .info-row {
       display: flex; justify-content: space-between;
-      font-size: 11px; padding: 4px 0;
-      border-bottom: 1px solid #f0f0f0;
+      font-size: 11px; padding: 4px 0; border-bottom: 1px solid #f0f0f0;
     }
     .info-label { color: #888; }
     .info-value { color: #1a1a1a; font-weight: 500; text-align: right; }
 
     .thumbnail-strip {
       height: 90px; flex-shrink: 0;
-      border-top: 1px solid #e0e0e0;
-      background: #f0f0f0;
-      display: flex; align-items: center;
-      gap: 6px; padding: 0 12px;
-      overflow-x: auto;
+      border-top: 1px solid #e0e0e0; background: #f0f0f0;
+      display: flex; align-items: center; gap: 6px; padding: 0 12px; overflow-x: auto;
     }
     .thumb-item {
       width: 64px; height: 64px; flex-shrink: 0;
-      border-radius: 6px; overflow: hidden;
-      border: 2px solid transparent;
-      cursor: none;
-      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.15s;
+      border-radius: 6px; overflow: hidden; border: 2px solid transparent;
+      cursor: none; transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.15s;
     }
     .thumb-item:hover { transform: scale(1.15) translateY(-4px); }
     .thumb-item.active { border-color: #0064d3; transform: scale(1.1) translateY(-3px); }
@@ -239,8 +239,7 @@
 
     .preview-empty {
       flex: 1; display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      color: #ccc; gap: 12px;
+      align-items: center; justify-content: center; color: #ccc; gap: 12px;
       animation: popIn 0.5s ease;
     }
 
@@ -264,8 +263,7 @@
       display: flex; align-items: center; justify-content: center;
       z-index: 200; opacity: 0; pointer-events: none;
       transition: opacity 0.3s ease;
-      background: rgba(0,0,0,0.4);
-      backdrop-filter: blur(4px);
+      background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
     }
     #about-modal.open, #message-modal.open { opacity: 1; pointer-events: all; }
 
@@ -334,24 +332,21 @@
       background: #0064d3; color: white;
       border-radius: 18px 18px 4px 18px; align-self: flex-end;
     }
-    .imsg-bubble.sent:hover { transform: scale(1.02) translateX(-3px); }
     .imsg-input-row {
       display: flex; align-items: center;
       padding: 10px 12px; border-top: 1px solid #e0e0e0; gap: 8px;
     }
     .imsg-input {
-      flex: 1; border: 1px solid #d0d0d0;
-      border-radius: 20px; padding: 8px 14px;
-      font-size: 14px; outline: none;
+      flex: 1; border: 1px solid #d0d0d0; border-radius: 20px;
+      padding: 8px 14px; font-size: 14px; outline: none;
       font-family: -apple-system, sans-serif; cursor: text;
       transition: border-color 0.2s, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     .imsg-input:focus { border-color: #0064d3; transform: scale(1.01); }
     .imsg-send {
       width: 30px; height: 30px; border-radius: 50%;
-      background: #0064d3; border: none; color: white;
-      font-size: 14px; cursor: none;
-      display: flex; align-items: center; justify-content: center;
+      background: #0064d3; border: none; color: white; font-size: 14px;
+      cursor: none; display: flex; align-items: center; justify-content: center;
       transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     .imsg-send:hover { transform: scale(1.2); }
@@ -367,7 +362,7 @@
   <div class="click-ring" id="clickRing"></div>
 
   <div id="intro">
-    <img id="folder-img" src="images/Loading.png" alt="D.T.B Studio"/>
+    <img id="folder-img" src="Loading.png" alt="D.T.B Studio"/>
     <span id="folder-label">D.T.B Studio Artworks</span>
     <span id="item-count">2 items</span>
   </div>
@@ -380,12 +375,31 @@
       <span class="titlebar-title">D.T.B Studio</span>
     </div>
     <div class="finder-body">
+
       <div class="sidebar">
         <div style="padding: 4px 0 8px;">
           <div class="sidebar-heading">Favourites</div>
-          <div class="sidebar-item active" id="sb-portfolio" onclick="jellyClick(this); showPortfolio()">
-            <span class="sidebar-icon">📁</span> D.T.B Studio
+
+          <div class="sidebar-folder" id="sb-portfolio" onclick="toggleFolder()">
+            <span class="folder-arrow" id="folder-arrow">▶</span>
+            <span style="font-size:16px;">📁</span>
+            <span>D.T.B Studio</span>
           </div>
+          <div class="folder-children" id="folder-children">
+            <div class="folder-child-item" id="child-0" onclick="jellyClick(this); selectProject(0)">
+              <div class="child-thumb">
+                <img src="dtbstudio.png" onerror="this.parentElement.innerHTML='🎨'"/>
+              </div>
+              DTB Studio
+            </div>
+            <div class="folder-child-item" id="child-1" onclick="jellyClick(this); selectProject(1)">
+              <div class="child-thumb">
+                <img src="Absensemodel3.png" onerror="this.parentElement.innerHTML='🎨'"/>
+              </div>
+              Absense Model
+            </div>
+          </div>
+
           <div class="sidebar-item" id="sb-about" onclick="jellyClick(this); showAbout()">
             <span class="sidebar-icon">👤</span> About
           </div>
@@ -399,28 +413,6 @@
       </div>
 
       <div class="finder-main">
-        <div class="file-list">
-          <div class="file-section-label">Projects</div>
-          <div class="file-item" onclick="jellyClick(this); selectProject(0)">
-            <div class="file-thumb">
-              <img src="images/dtbstudio.png" onerror="this.parentElement.innerHTML='🎨'"/>
-            </div>
-            <div class="file-info">
-              <div class="file-name">DTB Studio</div>
-              <div class="file-meta">4 items · Today</div>
-            </div>
-          </div>
-          <div class="file-item" onclick="jellyClick(this); selectProject(1)">
-            <div class="file-thumb">
-              <img src="images/Absensemodel3.png" onerror="this.parentElement.innerHTML='🎨'"/>
-            </div>
-            <div class="file-info">
-              <div class="file-name">Absense Model</div>
-              <div class="file-meta">3 items · Today</div>
-            </div>
-          </div>
-        </div>
-
         <div class="project-viewer" id="project-viewer">
           <div class="preview-empty">
             <div style="font-size:48px;">👆</div>
@@ -473,6 +465,7 @@
     const folderImg   = document.getElementById('folder-img');
     const folderLabel = document.getElementById('folder-label');
     let cursorX = 0, cursorY = 0, isAuto = true;
+    let folderOpen = false;
 
     function jellyClick(el) {
       el.classList.remove('jelly-click');
@@ -536,22 +529,32 @@
       document.getElementById('finder').classList.add('visible');
     }
 
+    function toggleFolder() {
+      folderOpen = !folderOpen;
+      const children = document.getElementById('folder-children');
+      const arrow = document.getElementById('folder-arrow');
+      const sb = document.getElementById('sb-portfolio');
+      children.classList.toggle('open', folderOpen);
+      arrow.classList.toggle('open', folderOpen);
+      sb.classList.toggle('active', folderOpen);
+    }
+
     const projects = [
       {
         name: 'DTB Studio',
         images: [
-          { src: 'images/dtbstudio.png', name: 'dtbstudio.png', size: '2.1 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1200', resolution: '72 × 72', colorSpace: 'RGB' },
-          { src: 'images/dtbstudio.png', name: 'dtbstudio_2.png', size: '1.8 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1200', resolution: '72 × 72', colorSpace: 'RGB' },
-          { src: 'images/dtbstudio.png', name: 'dtbstudio_3.png', size: '2.0 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1200', resolution: '72 × 72', colorSpace: 'RGB' },
-          { src: 'images/dtbstudio.png', name: 'dtbstudio_4.png', size: '1.9 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1200', resolution: '72 × 72', colorSpace: 'RGB' },
+          { src: 'dtbstudio.png', name: 'dtbstudio.png', size: '2.1 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1200', resolution: '72 × 72', colorSpace: 'RGB' },
+          { src: 'dtbstudio.png', name: 'dtbstudio_2.png', size: '1.8 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1200', resolution: '72 × 72', colorSpace: 'RGB' },
+          { src: 'dtbstudio.png', name: 'dtbstudio_3.png', size: '2.0 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1200', resolution: '72 × 72', colorSpace: 'RGB' },
+          { src: 'dtbstudio.png', name: 'dtbstudio_4.png', size: '1.9 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1200', resolution: '72 × 72', colorSpace: 'RGB' },
         ]
       },
       {
         name: 'Absense Model',
         images: [
-          { src: 'images/Absensemodel1.png', name: 'Absensemodel1.png', size: '3.2 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1500', resolution: '72 × 72', colorSpace: 'RGB' },
-          { src: 'images/Absensemodel2.png', name: 'Absensemodel2.png', size: '2.9 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1500', resolution: '72 × 72', colorSpace: 'RGB' },
-          { src: 'images/Absensemodel3.png', name: 'Absensemodel3.png', size: '3.1 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1500', resolution: '72 × 72', colorSpace: 'RGB' },
+          { src: 'Absensemodel3.png', name: 'Absensemodel1.png', size: '3.2 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1500', resolution: '72 × 72', colorSpace: 'RGB' },
+          { src: 'Absensemodel3.png', name: 'Absensemodel2.png', size: '2.9 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1500', resolution: '72 × 72', colorSpace: 'RGB' },
+          { src: 'Absensemodel3.png', name: 'Absensemodel3.png', size: '3.1 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1500', resolution: '72 × 72', colorSpace: 'RGB' },
         ]
       }
     ];
@@ -561,8 +564,8 @@
 
     function selectProject(i) {
       clearInterval(window.clockInterval);
-      document.querySelectorAll('.file-item').forEach((el, idx) => {
-        el.classList.toggle('selected', idx === i);
+      document.querySelectorAll('.folder-child-item').forEach((el, idx) => {
+        el.classList.toggle('active', idx === i);
       });
       currentProject = projects[i];
       currentImageIndex = 0;
@@ -655,23 +658,16 @@
       document.getElementById(id).classList.add('active');
     }
 
-    function showPortfolio() {
-      setActive('sb-portfolio');
-      clearInterval(window.clockInterval);
-    }
-
     function showAbout() {
       setActive('sb-about');
       clearInterval(window.clockInterval);
       document.getElementById('about-modal').classList.add('open');
     }
-
     function showMessage() {
       setActive('sb-message');
       clearInterval(window.clockInterval);
       document.getElementById('message-modal').classList.add('open');
     }
-
     function closeAbout() { document.getElementById('about-modal').classList.remove('open'); }
     function closeMessage() { document.getElementById('message-modal').classList.remove('open'); }
 
