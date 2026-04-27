@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>D.T.B Studio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@200;400&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #f5f2ee;
+      --text: #1a1a1a;
+      --accent: #c8a96e;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Montserrat', sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      cursor: none;
+    }
+
+    /* Custom cursor */
+    .cursor {
+      width: 10px; height: 10px;
+      background: var(--text);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s ease, width 0.3s ease, height 0.3s ease, background 0.3s ease;
+    }
+    .cursor.hover {
+      width: 40px; height: 40px;
+      background: transparent;
+      border: 1px solid var(--text);
+    }
+
+    /* Intro screen */
+    #intro {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 10;
+      transition: opacity 0.8s ease;
+    }
+
+    #folder-wrap {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 16px;
+      cursor: none;
+    }
+
+    #folder-img {
+      width: 120px;
+      transition: transform 0.3s ease;
+      filter: drop-shadow(0 8px 24px rgba(0,0,0,0.12));
+    }
+
+    #folder-wrap:hover #folder-img {
+      transform: scale(1.08) translateY(-4px);
+    }
+
+    .folder-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-weight: 300;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--text);
+      opacity: 0.7;
+    }
+
+    .click-hint {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text);
+      opacity: 0.35;
+      margin-top: 8px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.35; }
+      50% { opacity: 0.7; }
+    }
+
+    /* Gallery */
+    #gallery {
+      position: fixed; inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.6s ease;
+    }
+
+    #gallery.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .artwork-card {
+      position: absolute;
+      cursor: none;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      opacity: 0;
+    }
+
+    .artwork-card.placed {
+      opacity: 1;
+    }
+
+    .artwork-card:hover {
+      transform: rotate(0deg) scale(1.04) !important;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2) !important;
+      z-index: 5;
+    }
+
+    .artwork-card img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Back button */
+    #back-btn {
+      position: fixed;
+      top: 32px; left: 32px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text);
+      opacity: 0.5;
+      cursor: none;
+      z-index: 20;
+      display: none;
+      transition: opacity 0.3s ease;
+    }
+    #back-btn:hover { opacity: 1; }
+    #back-btn.visible { display: block; }
+
+    /* Studio name */
+    #studio-name {
+      position: fixed;
+      top: 32px; right: 32px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 13px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--text);
+      opacity: 0;
+      z-index: 20;
+      transition: opacity 0.6s ease 0.4s;
+    }
+    #studio-name.visible { opacity: 0.4; }
+
+    /* Modal */
+    #modal {
+      position: fixed; inset: 0;
+      background: rgba(245, 242, 238, 0.96);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    #modal.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+    #modal img {
+      max-width: 85vw;
+      max-height: 85vh;
+      object-fit: contain;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.15);
+      transform: scale(0.95);
+      transition: transform 0.4s ease;
+    }
+    #modal.open img { transform: scale(1); }
+
+    #modal-close {
+      position: fixed;
+      top: 32px; right: 32px;
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      cursor: none;
+      opacity: 0.5;
+      transition: opacity 0.3s;
+    }
+    #modal-close:hover { opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+
+  <!-- Intro -->
+  <div id="intro">
+    <div id="folder-wrap" onclick="openGallery()">
+      <img id="folder-img" src="Loading.png" alt="D.T.B Studio"/>
+      <span class="folder-label">D.T.B Studio</span>
+      <span class="click-hint">Click to explore</span>
+    </div>
+  </div>
+
+  <!-- Gallery -->
+  <div id="gallery">
+    <div id="back-btn" onclick="closeGallery()">← Back</div>
+    <div id="studio-name">D.T.B Studio Artworks</div>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal" onclick="closeModal()">
+    <span id="modal-close">✕ Close</span>
+    <img id="modal-img" src="" alt=""/>
+  </div>
+
+  <script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top = e.clientY + 'px';
+    });
+    document.addEventListener('mouseover', e => {
+      if (e.target.closest('#folder-wrap, .artwork-card, #back-btn, #modal-close')) {
+        cursor.classList.add('hover');
+      } else {
+        cursor.classList.remove('hover');
+      }
+    });
+
+    const artworks = [
+      { src: 'dtbstudio.png', w: 340, h: 420 },
+      { src: 'Absensemodel3.png', w: 300, h: 380 },
+    ];
+
+    // Scatter positions
+    const positions = [
+      { left: '12%', top: '15%', rotate: '-4deg' },
+      { left: '55%', top: '20%', rotate: '3deg' },
+    ];
+
+    function openGallery() {
+      const intro = document.getElementById('intro');
+      const gallery = document.getElementById('gallery');
+      const backBtn = document.getElementById('back-btn');
+      const studioName = document.getElementById('studio-name');
+
+      intro.style.opacity = '0';
+      setTimeout(() => { intro.style.pointerEvents = 'none'; }, 800);
+
+      // Create cards
+      artworks.forEach((art, i) => {
+        const card = document.createElement('div');
+        card.className = 'artwork-card';
+        card.style.width = art.w + 'px';
+        card.style.height = art.h + 'px';
+        card.style.left = positions[i].left;
+        card.style.top = positions[i].top;
+        card.style.transform = `rotate(${positions[i].rotate})`;
+        card.style.boxShadow = '0 12px 40px rgba(0,0,0,0.12)';
+
+        const img = document.createElement('img');
+        img.src = art.src;
+        img.alt = 'Artwork';
+        card.appendChild(img);
+        card.addEventListener('click', () => openModal(art.src));
+        gallery.appendChild(card);
+
+        setTimeout(() => {
+          card.classList.add('placed');
+          card.style.transition = `opacity 0.5s ease ${i * 0.15}s, transform 0.3s ease, box-shadow 0.3s ease`;
+        }, 100 + i * 150);
+      });
+
+      gallery.classList.add('visible');
+      backBtn.classList.add('visible');
+      studioName.classList.add('visible');
+    }
+
+    function closeGallery() {
+      const intro = document.getElementById('intro');
+      const gallery = document.getElementById('gallery');
+      const backBtn = document.getElementById('back-btn');
+      const studioName = document.getElementById('studio-name');
+
+      gallery.classList.remove('visible');
+      backBtn.classList.remove('visible');
+      studioName.classList.remove('visible');
+      intro.style.opacity = '1';
+      intro.style.pointerEvents = 'all';
+
+      // Remove cards
+      setTimeout(() => {
+        document.querySelectorAll('.artwork-card').forEach(c => c.remove());
+      }, 600);
+    }
+
+    function openModal(src) {
+      const modal = document.getElementById('modal');
+      const modalImg = document.getElementById('modal-img');
+      modalImg.src = src;
+      modal.classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.remove('open');
+    }
+  </script>
+</body>
+</html>
