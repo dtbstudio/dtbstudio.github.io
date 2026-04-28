@@ -8,11 +8,16 @@
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background: #ffffff;
+      background: #f5f5f5;
       height: 100vh;
       overflow: hidden;
       cursor: none;
       font-family: -apple-system, 'Helvetica Neue', sans-serif;
+    }
+
+    @media (max-width: 768px) {
+      body { cursor: auto; overflow: auto; }
+      .fake-cursor, .click-ring { display: none; }
     }
 
     .fake-cursor {
@@ -21,6 +26,11 @@
       transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     .fake-cursor svg { width: 100%; height: 100%; }
+    .fake-cursor.emoji-mode {
+      width: auto; height: auto;
+      font-size: 22px; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+    }
 
     .click-ring {
       width: 40px; height: 40px;
@@ -34,13 +44,6 @@
       100% { transform: translate(-50%,-50%) scale(2.5); opacity: 0; }
     }
 
-    @keyframes jelly {
-      0%   { transform: scale(1, 1); }
-      25%  { transform: scale(0.85, 1.15); }
-      50%  { transform: scale(1.15, 0.85); }
-      75%  { transform: scale(0.92, 1.08); }
-      100% { transform: scale(1, 1); }
-    }
     @keyframes jellyBig {
       0%   { transform: scale(1, 1); }
       20%  { transform: scale(0.8, 1.2); }
@@ -65,28 +68,40 @@
       0%   { opacity: 0; transform: translateY(-6px); }
       100% { opacity: 1; transform: translateY(0); }
     }
+    @keyframes fadeUp {
+      0%   { opacity: 0; transform: translateY(40px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up {
+      animation: fadeUp 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      opacity: 0;
+    }
 
+    /* 인트로 — 간격 60% 줄이기 */
     #intro {
       position: fixed; inset: 0;
       display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 6px;
+      align-items: center; justify-content: center;
+      gap: 0;
       z-index: 10; transition: opacity 0.8s ease;
+      background: #f5f5f5;
     }
     #folder-img {
-      width: 173px;
-      filter: drop-shadow(0 8px 24px rgba(0,0,0,0.12));
-      margin-bottom: 4px;
+      width: 100px;
+      display: block;
+      margin-bottom: -4px;
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     #folder-img:hover { transform: scale(1.08); }
     #folder-img.clicking { animation: jellyBig 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
     #folder-label {
-      font-size: 18px; font-weight: 600; color: #1a1a1a;
-      padding: 2px 6px; border-radius: 4px; letter-spacing: 0;
+      font-size: 12px; font-weight: 400; color: #1a1a1a;
+      padding: 1px 4px; border-radius: 4px; letter-spacing: 0;
+      margin-top: -20px;
       transition: background 0.1s, color 0.1s;
     }
     #folder-label.selected { background: #0064d3; color: #fff; }
-    #item-count { font-size: 13px; color: #6aaccc; letter-spacing: 0; }
+    #item-count { font-size: 11px; color: #6aaccc; }
 
     #finder {
       position: fixed; inset: 0;
@@ -98,9 +113,8 @@
 
     .titlebar {
       height: 44px;
-      background: rgba(236,236,236,0.95);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid #d0d0d0;
+      background: #f5f5f5;
+      border-bottom: 1px solid #e0e0e0;
       display: flex; align-items: center;
       padding: 0 16px; gap: 8px; flex-shrink: 0;
     }
@@ -112,84 +126,128 @@
     .tl-red { background: #ff5f57; }
     .tl-yellow { background: #febc2e; }
     .tl-green { background: #28c840; }
-    .titlebar-title {
-      flex: 1; text-align: center;
-      font-size: 13px; font-weight: 500; color: #1a1a1a;
-      margin-left: -60px;
+
+    .searchbar-wrap { flex: 1; display: flex; justify-content: center; }
+    .searchbar {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(0,0,0,0.07);
+      border-radius: 20px; padding: 4px 14px;
+      width: 260px; height: 32px;
+    }
+    .searchbar-icon { font-size: 13px; color: #888; }
+    .searchbar-text {
+      font-size: 13px; color: #1a1a1a;
+      white-space: nowrap; overflow: hidden; min-width: 160px;
     }
 
     .finder-body { display: flex; flex: 1; overflow: hidden; }
 
+    /* 사이드바 */
     .sidebar {
-      width: 200px; min-width: 200px;
-      background: rgba(228,228,228,0.8);
-      border-right: 1px solid #c8c8c8;
-      padding: 12px 0; flex-shrink: 0;
-      overflow-y: auto;
+      width: 260px; min-width: 260px;
+      background: #f5f5f5;
+      border-right: 1px solid #e0e0e0;
+      padding: 8px 0 0; flex-shrink: 0;
+      display: flex; flex-direction: column;
     }
-    .sidebar-heading {
-      font-size: 11px; font-weight: 600; color: #888;
-      letter-spacing: 0.5px; text-transform: uppercase;
-      padding: 0 16px; margin-bottom: 4px;
+
+    @media (max-width: 768px) {
+      .sidebar { width: 100%; min-width: unset; border-right: none; border-bottom: 1px solid #e0e0e0; max-height: 50vh; }
+      .finder-body { flex-direction: column; }
+      #finder { overflow: auto; }
+      .finder-main { min-height: 60vh; }
+      .viewer-top { flex-direction: column; }
+      .info-panel { width: 100%; min-width: unset; border-left: none; border-top: 1px solid #e8e8e8; }
     }
+
+    .sidebar-content { flex: 1; overflow-y: auto; padding: 0 8px; }
+
+    /* 사이드바 아이템 — 레퍼런스처럼 */
     .sidebar-item {
-      display: flex; align-items: center; gap: 8px;
-      padding: 5px 16px; font-size: 13px; color: #1a1a1a;
-      border-radius: 6px; margin: 0 6px;
-      cursor: none;
+      display: flex; align-items: center; gap: 12px;
+      padding: 8px 10px; font-size: 14px; font-weight: 400; color: #1a1a1a;
+      border-radius: 8px; cursor: none;
       transition: background 0.15s, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .sidebar-item:hover { background: rgba(0,0,0,0.06); transform: scale(1.03) translateX(3px); }
-    .sidebar-item.active { background: #0064d3; color: #fff; }
+    @media (max-width: 768px) { .sidebar-item { cursor: pointer; } }
+    .sidebar-item:hover { background: rgba(0,0,0,0.05); transform: scale(1.02) translateX(3px); }
+    .sidebar-item.active { background: #e8e8e8; color: #0064d3; }
     .sidebar-item.jelly-click { animation: slideJelly 0.4s ease forwards; }
-    .sidebar-icon {
-      font-size: 16px; width: 20px; text-align: center;
+
+    .sidebar-icon-img {
+      width: 32px; height: 32px; object-fit: contain;
       transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .sidebar-item:hover .sidebar-icon { transform: scale(1.2) rotate(-5deg); }
+    .sidebar-item:hover .sidebar-icon-img { transform: scale(1.2) rotate(-5deg); }
 
+    /* 폴더 — 아이콘 왼쪽, 화살표 오른쪽 */
     .sidebar-folder {
-      display: flex; align-items: center; gap: 8px;
-      padding: 5px 16px; font-size: 13px; color: #1a1a1a;
-      border-radius: 6px; margin: 0 6px;
-      cursor: none;
+      display: flex; align-items: center; gap: 12px;
+      padding: 8px 10px; font-size: 14px; font-weight: 400; color: #1a1a1a;
+      border-radius: 8px; cursor: none;
       transition: background 0.15s, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .sidebar-folder:hover { background: rgba(0,0,0,0.06); transform: scale(1.03) translateX(3px); }
-    .sidebar-folder.active { background: #0064d3; color: #fff; }
+    @media (max-width: 768px) { .sidebar-folder { cursor: pointer; } }
+    .sidebar-folder:hover { background: rgba(0,0,0,0.05); transform: scale(1.02) translateX(3px); }
+    .sidebar-folder.active { background: #e8e8e8; color: #0064d3; }
+    .folder-name { flex: 1; }
     .folder-arrow {
-      font-size: 10px; width: 12px;
+      font-size: 10px; color: #aaa;
       transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
       display: inline-block;
     }
     .folder-arrow.open { transform: rotate(90deg); }
 
     .folder-children {
-      overflow: hidden;
-      max-height: 0;
+      overflow: hidden; max-height: 0;
       transition: max-height 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .folder-children.open { max-height: 300px; }
+    .folder-children.open { max-height: 400px; }
     .folder-child-item {
-      display: flex; align-items: center; gap: 8px;
-      padding: 4px 16px 4px 36px;
-      font-size: 12px; color: #1a1a1a;
-      border-radius: 6px; margin: 0 6px;
-      cursor: none;
+      display: flex; align-items: center; gap: 10px;
+      padding: 6px 10px 6px 44px;
+      font-size: 14px; color: #1a1a1a;
+      border-radius: 8px; cursor: none;
       transition: background 0.15s, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-      animation: expandDown 0.3s ease;
     }
-    .folder-child-item:hover { background: rgba(0,0,0,0.06); transform: translateX(3px); }
-    .folder-child-item.active { background: #0064d3; color: #fff; }
+    @media (max-width: 768px) { .folder-child-item { cursor: pointer; } }
+    .folder-child-item:hover { background: rgba(0,0,0,0.05); transform: translateX(3px); }
+    .folder-child-item.active { background: #0064d3; color: white; }
     .child-thumb {
       width: 24px; height: 24px; border-radius: 4px;
       background: #e0e0e0; overflow: hidden; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center; font-size: 12px;
     }
     .child-thumb img { width: 100%; height: 100%; object-fit: cover; }
 
-    .finder-main { flex: 1; display: flex; overflow: hidden; }
+    .sidebar-section-title {
+      font-size: 12px; font-weight: 600; color: #999;
+      text-transform: uppercase; letter-spacing: -0.02em;
+      padding: 12px 10px 4px;
+    }
+    .currently-sidebar-card {
+      display: flex; align-items: center; gap: 12px;
+      padding: 8px 10px; border-radius: 8px; cursor: none;
+      transition: background 0.15s, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @media (max-width: 768px) { .currently-sidebar-card { cursor: pointer; } }
+    .currently-sidebar-card:hover { background: rgba(0,0,0,0.05); transform: scale(1.02) translateX(2px); }
+    .currently-sidebar-icon {
+      width: 32px; height: 32px; flex-shrink: 0;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .currently-sidebar-icon img { width: 100%; height: 100%; object-fit: contain; }
+    .currently-sidebar-card:hover .currently-sidebar-icon { transform: scale(1.2) rotate(5deg); }
+    .currently-sidebar-title { font-size: 14px; font-weight: 400; color: #1a1a1a; }
+    .currently-sidebar-desc { font-size: 11px; color: #999; margin-top: 1px; }
 
+    /* 하단 시계 — 아이콘 50% 크게, 바늘 작게 */
+    .sidebar-clock-area {
+      padding: 12px 18px 14px;
+      border-top: 1px solid #e0e0e0;
+      flex-shrink: 0;
+    }
+
+    .finder-main { flex: 1; display: flex; overflow: hidden; }
     .project-viewer {
       flex: 1; display: flex; flex-direction: column;
       overflow: hidden; background: #ffffff;
@@ -211,7 +269,6 @@
       border-left: 1px solid #e8e8e8;
       overflow-y: auto; padding: 20px;
       background: #fafafa; flex-shrink: 0;
-      animation: slideJelly 0.4s ease;
     }
     .info-filename { font-size: 13px; font-weight: 600; margin-bottom: 2px; word-break: break-all; }
     .info-filesize { font-size: 11px; color: #888; margin-bottom: 16px; }
@@ -233,6 +290,7 @@
       border-radius: 6px; overflow: hidden; border: 2px solid transparent;
       cursor: none; transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.15s;
     }
+    @media (max-width: 768px) { .thumb-item { cursor: pointer; } }
     .thumb-item:hover { transform: scale(1.15) translateY(-4px); }
     .thumb-item.active { border-color: #0064d3; transform: scale(1.1) translateY(-3px); }
     .thumb-item img { width: 100%; height: 100%; object-fit: cover; }
@@ -240,23 +298,7 @@
     .preview-empty {
       flex: 1; display: flex; flex-direction: column;
       align-items: center; justify-content: center; color: #ccc; gap: 12px;
-      animation: popIn 0.5s ease;
     }
-
-    .currently-card {
-      background: #f5f5f5; border-radius: 16px;
-      padding: 20px; display: flex; align-items: center; gap: 16px;
-      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
-      cursor: none;
-    }
-    .currently-card:hover { transform: scale(1.02) translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
-    .currently-icon {
-      width: 64px; height: 64px; border-radius: 14px;
-      background: #1a1a1a; display: flex; align-items: center;
-      justify-content: center; font-size: 28px; flex-shrink: 0;
-      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .currently-card:hover .currently-icon { transform: scale(1.1) rotate(5deg); }
 
     #about-modal, #message-modal {
       position: fixed; inset: 0;
@@ -273,6 +315,7 @@
       overflow: hidden; width: 560px;
       animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
+    @media (max-width: 768px) { .quicklook-window { width: 90vw; } .ql-body { flex-direction: column; padding: 24px; } }
     .ql-titlebar {
       height: 40px; background: rgba(236,236,236,0.98);
       border-bottom: 1px solid #d0d0d0;
@@ -283,14 +326,16 @@
       background: #ff5f57; cursor: none;
       transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
+    @media (max-width: 768px) { .ql-close { cursor: pointer; } }
     .ql-close:hover { transform: scale(1.3); }
     .ql-body { display: flex; align-items: center; gap: 32px; padding: 36px 40px; }
     .ql-icon {
       width: 120px; height: 120px; border-radius: 24px;
       background: #1a1a1a; display: flex; align-items: center;
-      justify-content: center; font-size: 48px; flex-shrink: 0;
+      justify-content: center; flex-shrink: 0; overflow: hidden;
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
+    .ql-icon img { width: 70%; height: 70%; object-fit: contain; filter: brightness(0) invert(1); }
     .ql-icon:hover { transform: scale(1.08) rotate(5deg); }
     .ql-info h2 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
     .ql-info p { font-size: 13px; color: #888; line-height: 1.8; }
@@ -301,6 +346,7 @@
       overflow: hidden; width: 400px;
       animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
+    @media (max-width: 768px) { .imessage-window { width: 90vw; } }
     .imsg-titlebar {
       height: 52px; background: #f5f5f5;
       border-bottom: 1px solid #e0e0e0;
@@ -308,10 +354,10 @@
     }
     .imsg-avatar {
       width: 32px; height: 32px; border-radius: 50%;
-      background: #0064d3; display: flex; align-items: center;
-      justify-content: center; color: white; font-size: 13px; font-weight: 600;
+      background: #1a1a1a; overflow: hidden;
       transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
+    .imsg-avatar img { width: 100%; height: 100%; object-fit: contain; filter: brightness(0) invert(1); }
     .imsg-avatar:hover { transform: scale(1.15) rotate(-5deg); }
     .imsg-name { font-size: 14px; font-weight: 600; }
     .imsg-status { font-size: 11px; color: #888; }
@@ -324,7 +370,6 @@
       background: #e9e9eb; border-radius: 18px 18px 18px 4px;
       padding: 10px 14px; font-size: 14px; color: #1a1a1a;
       max-width: 80%; align-self: flex-start;
-      animation: slideJelly 0.3s ease;
       transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     .imsg-bubble:hover { transform: scale(1.02) translateX(3px); }
@@ -340,15 +385,15 @@
       flex: 1; border: 1px solid #d0d0d0; border-radius: 20px;
       padding: 8px 14px; font-size: 14px; outline: none;
       font-family: -apple-system, sans-serif; cursor: text;
-      transition: border-color 0.2s, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .imsg-input:focus { border-color: #0064d3; transform: scale(1.01); }
+    .imsg-input:focus { border-color: #0064d3; }
     .imsg-send {
       width: 30px; height: 30px; border-radius: 50%;
       background: #0064d3; border: none; color: white; font-size: 14px;
       cursor: none; display: flex; align-items: center; justify-content: center;
       transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
+    @media (max-width: 768px) { .imsg-send { cursor: pointer; } }
     .imsg-send:hover { transform: scale(1.2); }
   </style>
 </head>
@@ -362,8 +407,8 @@
   <div class="click-ring" id="clickRing"></div>
 
   <div id="intro">
-    <img id="folder-img" src="Loading.png" alt="D.T.B Studio"/>
-    <span id="folder-label">D.T.B Studio Artworks</span>
+    <img id="folder-img" src="images/Loading.png" alt="D.T.B Studio"/>
+    <span id="folder-label">D.T.B Studio</span>
     <span id="item-count">2 items</span>
   </div>
 
@@ -372,43 +417,75 @@
       <div class="traffic-light tl-red"></div>
       <div class="traffic-light tl-yellow"></div>
       <div class="traffic-light tl-green"></div>
-      <span class="titlebar-title">D.T.B Studio</span>
+      <div class="searchbar-wrap">
+        <div class="searchbar">
+          <span class="searchbar-icon">🔍</span>
+          <span class="searchbar-text" id="searchbar-text"></span>
+        </div>
+      </div>
     </div>
     <div class="finder-body">
-
       <div class="sidebar">
-        <div style="padding: 4px 0 8px;">
-          <div class="sidebar-heading">Favourites</div>
+        <div class="sidebar-content">
 
+          <!-- D.T.B Studio 폴더 — 아이콘 왼쪽, 화살표 오른쪽 -->
           <div class="sidebar-folder" id="sb-portfolio" onclick="toggleFolder()">
+            <img class="sidebar-icon-img" src="images/widget___d.t.b studio.png" alt=""/>
+            <span class="folder-name">D.T.B Studio</span>
             <span class="folder-arrow" id="folder-arrow">▶</span>
-            <span style="font-size:16px;">📁</span>
-            <span>D.T.B Studio</span>
           </div>
           <div class="folder-children" id="folder-children">
             <div class="folder-child-item" id="child-0" onclick="jellyClick(this); selectProject(0)">
               <div class="child-thumb">
-                <img src="dtbstudio.png" onerror="this.parentElement.innerHTML='🎨'"/>
+                <img src="images/dtbstudio.png" onerror="this.parentElement.innerHTML='🎨'"/>
               </div>
               DTB Studio
             </div>
             <div class="folder-child-item" id="child-1" onclick="jellyClick(this); selectProject(1)">
               <div class="child-thumb">
-                <img src="Absensemodel3.png" onerror="this.parentElement.innerHTML='🎨'"/>
+                <img src="images/Absensemodel1.png" onerror="this.parentElement.innerHTML='🎨'"/>
               </div>
               Absense Model
             </div>
           </div>
 
           <div class="sidebar-item" id="sb-about" onclick="jellyClick(this); showAbout()">
-            <span class="sidebar-icon">👤</span> About
+            <img class="sidebar-icon-img" src="images/widget___about.png" alt=""/>
+            About
           </div>
-          <div class="sidebar-item" id="sb-currently" onclick="jellyClick(this); showCurrently()">
-            <span class="sidebar-icon">📌</span> Currently Into
-          </div>
+
           <div class="sidebar-item" id="sb-message" onclick="jellyClick(this); showMessage()">
-            <span class="sidebar-icon">💬</span> Recent Message
+            <img class="sidebar-icon-img" src="images/widget___Message-19.png" alt=""/>
+            Recent Message
           </div>
+
+          <div class="sidebar-section-title">Currently Into</div>
+          <div class="currently-sidebar-card" onclick="jellyClick(this); selectCurrently(0)">
+            <div class="currently-sidebar-icon">
+              <img src="images/widget___ai.png" alt=""/>
+            </div>
+            <div>
+              <div class="currently-sidebar-title">AI Image Creation</div>
+              <div class="currently-sidebar-desc">Placeholder desc</div>
+            </div>
+          </div>
+          <div class="currently-sidebar-card" onclick="jellyClick(this); selectCurrently(1)">
+            <div class="currently-sidebar-icon">
+              <img src="images/widget___Lettering.png" alt=""/>
+            </div>
+            <div>
+              <div class="currently-sidebar-title">Lettering</div>
+              <div class="currently-sidebar-desc">Placeholder desc</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 하단 시계 -->
+        <div class="sidebar-clock-area">
+          <div id="sidebar-clock-date" style="font-size:11px; color:#888;"></div>
+          <div id="sidebar-clock-time" style="font-size:16px; font-weight:300; color:#1a1a1a; letter-spacing:-0.5px; margin-top:1px;"></div>
+          <div style="font-size:10px; color:#aaa; margin-top:1px;">Brisbane, Australia</div>
         </div>
       </div>
 
@@ -429,7 +506,9 @@
         <div class="ql-close" onclick="closeAbout()"></div>
       </div>
       <div class="ql-body">
-        <div class="ql-icon">🎨</div>
+        <div class="ql-icon">
+          <img src="images/widget___about.png"/>
+        </div>
         <div class="ql-info">
           <h2>Your Name Here</h2>
           <p>Creative Director / Designer<br/>Based in Sydney, Australia<br/><br/>Born in Seoul, raised across cities throughout Australia — a life shaped by diverse experiences.</p>
@@ -442,7 +521,9 @@
     <div class="imessage-window">
       <div class="imsg-titlebar">
         <div class="ql-close" onclick="closeMessage()"></div>
-        <div class="imsg-avatar">D</div>
+        <div class="imsg-avatar">
+          <img src="images/widget___Message-19.png" alt=""/>
+        </div>
         <div>
           <div class="imsg-name">D.T.B Studio</div>
           <div class="imsg-status">Available for projects</div>
@@ -473,6 +554,54 @@
       el.classList.add('jelly-click');
       setTimeout(() => el.classList.remove('jelly-click'), 400);
     }
+
+    const searchPhrases = ['Lany Jung', 'Graphic Designer', 'How can I help?'];
+    let phraseIndex = 0, charIndex = 0, isDeleting = false;
+    const searchEl = document.getElementById('searchbar-text');
+
+    function typeSearch() {
+      const current = searchPhrases[phraseIndex];
+      if (!isDeleting) {
+        charIndex++;
+        searchEl.textContent = current.substring(0, charIndex);
+        if (charIndex === current.length) {
+          isDeleting = true;
+          setTimeout(typeSearch, 2000);
+          return;
+        }
+        setTimeout(typeSearch, 80);
+      } else {
+        charIndex--;
+        searchEl.textContent = current.substring(0, charIndex);
+        if (charIndex === 0) {
+          isDeleting = false;
+          phraseIndex = (phraseIndex + 1) % searchPhrases.length;
+          setTimeout(typeSearch, 400);
+          return;
+        }
+        setTimeout(typeSearch, 40);
+      }
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const brisbane = new Date(now.toLocaleString('en-US', { timeZone: 'Australia/Brisbane' }));
+      const hours = brisbane.getHours() % 12;
+      const minutes = brisbane.getMinutes();
+      const seconds = brisbane.getSeconds();
+      const hourDeg = (hours * 30) + (minutes * 0.5);
+      const minuteDeg = (minutes * 6) + (seconds * 0.1);
+      const hourEl = document.getElementById('clock-hour');
+      const minuteEl = document.getElementById('clock-minute');
+      if (hourEl) hourEl.style.transform = `rotate(${hourDeg}deg)`;
+      if (minuteEl) minuteEl.style.transform = `rotate(${minuteDeg}deg)`;
+      const date = brisbane.toLocaleDateString('en-AU', { weekday: 'short', month: 'short', day: 'numeric' });
+      const time = brisbane.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      document.getElementById('sidebar-clock-date').textContent = date;
+      document.getElementById('sidebar-clock-time').textContent = time;
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
 
     document.addEventListener('mousemove', e => {
       if (!isAuto) {
@@ -509,15 +638,16 @@
     }
 
     window.addEventListener('load', () => {
-      cursorX = 80; cursorY = window.innerHeight-80;
+      cursorX = window.innerWidth / 2 - 60;
+      cursorY = window.innerHeight / 2 + 60;
       fakeCursor.style.left = cursorX+'px';
       fakeCursor.style.top  = cursorY+'px';
       setTimeout(() => {
         const r = folderImg.getBoundingClientRect();
-        animateCursorTo(r.left+r.width/2, r.top+r.height/2, 2000, () => {
+        animateCursorTo(r.left+r.width/2, r.top+r.height/2, 1500, () => {
           doClick(r.left+r.width/2, r.top+r.height/2, () => {
             openFinder();
-            setTimeout(() => { isAuto = false; }, 800);
+            setTimeout(() => { isAuto = false; typeSearch(); }, 800);
           });
         });
       }, 500);
@@ -527,34 +657,65 @@
       document.getElementById('intro').style.opacity = '0';
       setTimeout(() => { document.getElementById('intro').style.display='none'; }, 800);
       document.getElementById('finder').classList.add('visible');
+      const fc = document.getElementById('fakeCursor');
+      fc.classList.add('emoji-mode');
+      fc.innerHTML = '😈';
     }
 
     function toggleFolder() {
       folderOpen = !folderOpen;
-      const children = document.getElementById('folder-children');
-      const arrow = document.getElementById('folder-arrow');
-      const sb = document.getElementById('sb-portfolio');
-      children.classList.toggle('open', folderOpen);
-      arrow.classList.toggle('open', folderOpen);
-      sb.classList.toggle('active', folderOpen);
+      document.getElementById('folder-children').classList.toggle('open', folderOpen);
+      document.getElementById('folder-arrow').classList.toggle('open', folderOpen);
+      document.getElementById('sb-portfolio').classList.toggle('active', folderOpen);
     }
 
     const projects = [
       {
         name: 'DTB Studio',
+        description: 'Project description placeholder.',
+        year: '2024',
+        category: 'Graphic Design',
+        client: 'Self-initiated',
         images: [
-          { src: 'dtbstudio.png', name: 'dtbstudio.png', size: '2.1 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1200', resolution: '72 × 72', colorSpace: 'RGB' },
-          { src: 'dtbstudio.png', name: 'dtbstudio_2.png', size: '1.8 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1200', resolution: '72 × 72', colorSpace: 'RGB' },
-          { src: 'dtbstudio.png', name: 'dtbstudio_3.png', size: '2.0 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1200', resolution: '72 × 72', colorSpace: 'RGB' },
-          { src: 'dtbstudio.png', name: 'dtbstudio_4.png', size: '1.9 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1200', resolution: '72 × 72', colorSpace: 'RGB' },
+          { src: 'images/dtbstudio.png', layout: 'full' },
+          { src: 'images/dtbstudio.png', layout: 'half' },
+          { src: 'images/dtbstudio.png', layout: 'half' },
         ]
       },
       {
         name: 'Absense Model',
+        description: 'Project description placeholder.',
+        year: '2024',
+        category: 'Graphic Design',
+        client: 'Self-initiated',
         images: [
-          { src: 'Absensemodel3.png', name: 'Absensemodel1.png', size: '3.2 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1500', resolution: '72 × 72', colorSpace: 'RGB' },
-          { src: 'Absensemodel3.png', name: 'Absensemodel2.png', size: '2.9 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1500', resolution: '72 × 72', colorSpace: 'RGB' },
-          { src: 'Absensemodel3.png', name: 'Absensemodel3.png', size: '3.1 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1500', resolution: '72 × 72', colorSpace: 'RGB' },
+          { src: 'images/Absensemodel1.png', layout: 'full' },
+          { src: 'images/Absensemodel2.png.png', layout: 'half' },
+          { src: 'images/Absensemodel3.png', layout: 'half' },
+        ]
+      },
+      {
+        name: 'AI Image Creation',
+        description: 'Project description placeholder.',
+        year: '2024',
+        category: 'AI / Design',
+        client: 'Self-initiated',
+        images: [
+          { src: 'images/ai1.png', layout: 'full' },
+          { src: 'images/ai2.png', layout: 'half' },
+          { src: 'images/ai3.png', layout: 'half' },
+        ]
+      },
+      {
+        name: 'Lettering',
+        description: 'Project description placeholder.',
+        year: '2024',
+        category: 'Typography',
+        client: 'Self-initiated',
+        images: [
+          { src: 'images/lettering1.png', layout: 'full' },
+          { src: 'images/lettering2.png', layout: 'half' },
+          { src: 'images/lettering3.png', layout: 'half' },
         ]
       }
     ];
@@ -562,8 +723,40 @@
     let currentProject = null;
     let currentImageIndex = 0;
 
+    const currentlyProjects = [
+      {
+        name: 'AI Image Creation',
+        description: 'Placeholder description.',
+        year: '2024',
+        category: 'AI / Design',
+        client: 'Self-initiated',
+        images: [
+          { src: 'images/ai1.png', layout: 'full' },
+          { src: 'images/ai2.png', layout: 'half' },
+          { src: 'images/ai3.png', layout: 'half' },
+        ]
+      },
+      {
+        name: 'Lettering',
+        description: 'Placeholder description.',
+        year: '2024',
+        category: 'Typography',
+        client: 'Self-initiated',
+        images: [
+          { src: 'images/lettering1.png', layout: 'full' },
+          { src: 'images/lettering2.png', layout: 'half' },
+          { src: 'images/lettering3.png', layout: 'half' },
+        ]
+      }
+    ];
+
+    function selectCurrently(i) {
+      currentProject = currentlyProjects[i];
+      currentImageIndex = 0;
+      renderViewer();
+    }
+
     function selectProject(i) {
-      clearInterval(window.clockInterval);
       document.querySelectorAll('.folder-child-item').forEach((el, idx) => {
         el.classList.toggle('active', idx === i);
       });
@@ -572,31 +765,62 @@
       renderViewer();
     }
 
+    function buildImageGrid(images) {
+      const rows = [];
+      let i = 0;
+      while (i < images.length) {
+        const im = images[i];
+        if (im.layout === 'half' && images[i + 1] && images[i + 1].layout === 'half') {
+          rows.push(`<div style="display:flex; gap:2px;">
+            <img src="${im.src}" style="flex:1; height:600px; object-fit:cover; display:block;"/>
+            <img src="${images[i+1].src}" style="flex:1; height:600px; object-fit:cover; display:block;"/>
+          </div>`);
+          i += 2;
+        } else {
+          rows.push(`<img src="${im.src}" style="width:100%; height:800px; display:block; object-fit:cover;"/>`);
+          i += 1;
+        }
+      }
+      return rows.join('');
+    }
+
     function renderViewer() {
       const p = currentProject;
-      const img = p.images[currentImageIndex];
       document.getElementById('project-viewer').innerHTML = `
-        <div class="viewer-top">
-          <div class="main-image-area">
-            <img src="${img.src}" alt="${img.name}"/>
+        <div style="overflow-y:auto; height:100%; background:#fff;">
+          <div style="display:flex; flex-wrap:wrap; gap:2px;">
+            ${p.images.map((im, idx) => `
+              <img src="${im.src}" class="fade-up" style="width:${im.layout === 'half' ? 'calc(50% - 1px)' : '100%'}; height:500px; display:block; object-fit:cover; animation-delay:${idx * 0.15}s;"/>
+            `).join('')}
           </div>
-          <div class="info-panel">
-            <div class="info-filename">${img.name}</div>
-            <div class="info-filesize">${img.size}</div>
-            <div class="info-heading">Information</div>
-            <div class="info-row"><span class="info-label">Created</span><span class="info-value">${img.date}</span></div>
-            <div class="info-row"><span class="info-label">Modified</span><span class="info-value">${img.date}</span></div>
-            <div class="info-row"><span class="info-label">Dimensions</span><span class="info-value">${img.dimensions}</span></div>
-            <div class="info-row"><span class="info-label">Resolution</span><span class="info-value">${img.resolution}</span></div>
-            <div class="info-row"><span class="info-label">Colour space</span><span class="info-value">${img.colorSpace}</span></div>
-          </div>
-        </div>
-        <div class="thumbnail-strip">
-          ${p.images.map((im, idx) => `
-            <div class="thumb-item ${idx === currentImageIndex ? 'active' : ''}" onclick="switchImage(${idx}, this)">
-              <img src="${im.src}"/>
+          <div style="background:#fafafa; border-top:1px solid #e0e0e0; padding:24px;">
+            <div style="font-size:14px; font-weight:600; color:#1a1a1a; margin-bottom:2px;">${p.name}</div>
+            <div style="font-size:12px; color:#888; margin-bottom:16px;">${p.category || 'Graphic Design'} · ${p.year || '2024'}</div>
+            <div style="font-size:12px; font-weight:700; margin-bottom:10px;">Information</div>
+            <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f0f0f0;">
+              <span style="font-size:12px; color:#888;">Description</span>
+              <span style="font-size:12px; color:#1a1a1a; max-width:60%; text-align:right;">${p.description || 'Placeholder'}</span>
             </div>
-          `).join('')}
+            <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f0f0f0;">
+              <span style="font-size:12px; color:#888;">Year</span>
+              <span style="font-size:12px; color:#1a1a1a;">${p.year || '2024'}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f0f0f0;">
+              <span style="font-size:12px; color:#888;">Category</span>
+              <span style="font-size:12px; color:#1a1a1a;">${p.category || 'Graphic Design'}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding:6px 0;">
+              <span style="font-size:12px; color:#888;">Client</span>
+              <span style="font-size:12px; color:#1a1a1a;">${p.client || 'Placeholder'}</span>
+            </div>
+          </div>
+          <div class="thumbnail-strip">
+            ${p.images.map((im, idx) => `
+              <div class="thumb-item ${idx === currentImageIndex ? 'active' : ''}" onclick="switchImage(${idx}, this)">
+                <img src="${im.src}"/>
+              </div>
+            `).join('')}
+          </div>
         </div>`;
     }
 
@@ -606,53 +830,6 @@
       renderViewer();
     }
 
-    const currentlyItems = [
-      { icon: '🤖', title: 'AI Image Creation', desc: 'Placeholder description here' },
-      { icon: '✍️', title: 'Lettering', desc: 'Placeholder description here' },
-    ];
-
-    function showCurrently() {
-      setActive('sb-currently');
-      clearInterval(window.clockInterval);
-      const viewer = document.getElementById('project-viewer');
-
-      function renderClock() {
-        const now = new Date();
-        const date = now.toLocaleDateString('en-AU', {
-          timeZone: 'Australia/Brisbane',
-          weekday: 'long', month: 'long', day: 'numeric'
-        });
-        const time = now.toLocaleTimeString('en-AU', {
-          timeZone: 'Australia/Brisbane',
-          hour: '2-digit', minute: '2-digit', second: '2-digit'
-        });
-        const el = document.getElementById('live-clock');
-        if (el) el.innerHTML = `${date}<br/>${time}`;
-      }
-
-      viewer.innerHTML = `
-        <div style="padding:32px; overflow-y:auto; height:100%;">
-          <div style="text-align:center; margin-bottom:40px;">
-            <div style="font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#aaa; margin-bottom:12px;">D.T.B STUDIO</div>
-            <div id="live-clock" style="font-size:28px; font-weight:300; color:#1a1a1a; line-height:1.5;"></div>
-          </div>
-          <div style="display:flex; flex-direction:column; gap:12px;">
-            ${currentlyItems.map((item, i) => `
-              <div class="currently-card" style="animation: popIn ${0.3 + i*0.1}s ease;">
-                <div class="currently-icon">${item.icon}</div>
-                <div>
-                  <div style="font-size:15px; font-weight:600; margin-bottom:4px;">${item.title}</div>
-                  <div style="font-size:13px; color:#888;">${item.desc}</div>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        </div>`;
-
-      renderClock();
-      window.clockInterval = setInterval(renderClock, 1000);
-    }
-
     function setActive(id) {
       document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
       document.getElementById(id).classList.add('active');
@@ -660,12 +837,10 @@
 
     function showAbout() {
       setActive('sb-about');
-      clearInterval(window.clockInterval);
       document.getElementById('about-modal').classList.add('open');
     }
     function showMessage() {
       setActive('sb-message');
-      clearInterval(window.clockInterval);
       document.getElementById('message-modal').classList.add('open');
     }
     function closeAbout() { document.getElementById('about-modal').classList.remove('open'); }

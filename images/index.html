@@ -1,318 +1,699 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>D.T.B Studio</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@200;400&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-    :root {
-      --bg: #f5f2ee;
-      --text: #1a1a1a;
-      --accent: #c8a96e;
-    }
-
     body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Montserrat', sans-serif;
+      background: #ffffff;
       height: 100vh;
       overflow: hidden;
       cursor: none;
+      font-family: -apple-system, 'Helvetica Neue', sans-serif;
     }
 
-    /* Custom cursor */
-    .cursor {
-      width: 10px; height: 10px;
-      background: var(--text);
-      border-radius: 50%;
-      position: fixed;
-      pointer-events: none;
-      z-index: 9999;
-      transform: translate(-50%, -50%);
-      transition: transform 0.1s ease, width 0.3s ease, height 0.3s ease, background 0.3s ease;
+    .fake-cursor {
+      width: 20px; height: 28px;
+      position: fixed; pointer-events: none; z-index: 9999;
+      transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .cursor.hover {
+    .fake-cursor svg { width: 100%; height: 100%; }
+
+    .click-ring {
       width: 40px; height: 40px;
-      background: transparent;
-      border: 1px solid var(--text);
+      border: 2px solid #1a1a1a; border-radius: 50%;
+      position: fixed; pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%) scale(0); opacity: 0;
+    }
+    .click-ring.animate { animation: ringPop 0.5s ease-out forwards; }
+    @keyframes ringPop {
+      0%   { transform: translate(-50%,-50%) scale(0); opacity: 1; }
+      100% { transform: translate(-50%,-50%) scale(2.5); opacity: 0; }
     }
 
-    /* Intro screen */
+    @keyframes jelly {
+      0%   { transform: scale(1, 1); }
+      25%  { transform: scale(0.85, 1.15); }
+      50%  { transform: scale(1.15, 0.85); }
+      75%  { transform: scale(0.92, 1.08); }
+      100% { transform: scale(1, 1); }
+    }
+    @keyframes jellyBig {
+      0%   { transform: scale(1, 1); }
+      20%  { transform: scale(0.8, 1.2); }
+      40%  { transform: scale(1.2, 0.8); }
+      60%  { transform: scale(0.9, 1.1); }
+      80%  { transform: scale(1.05, 0.95); }
+      100% { transform: scale(1, 1); }
+    }
+    @keyframes popIn {
+      0%   { transform: scale(0.5); opacity: 0; }
+      60%  { transform: scale(1.1); opacity: 1; }
+      80%  { transform: scale(0.95); }
+      100% { transform: scale(1); }
+    }
+    @keyframes slideJelly {
+      0%   { transform: translateX(-8px) scale(0.95, 1.05); opacity: 0; }
+      50%  { transform: translateX(4px) scale(1.05, 0.95); opacity: 1; }
+      75%  { transform: translateX(-2px) scale(0.98, 1.02); }
+      100% { transform: translateX(0) scale(1, 1); opacity: 1; }
+    }
+    @keyframes expandDown {
+      0%   { opacity: 0; transform: translateY(-6px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
     #intro {
       position: fixed; inset: 0;
       display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      z-index: 10;
+      align-items: center; justify-content: center; gap: 6px;
+      z-index: 10; transition: opacity 0.8s ease;
+    }
+    #folder-img {
+      width: 173px;
+      filter: drop-shadow(0 8px 24px rgba(0,0,0,0.12));
+      margin-bottom: 4px;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    #folder-img:hover { transform: scale(1.08); }
+    #folder-img.clicking { animation: jellyBig 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
+    #folder-label {
+      font-size: 18px; font-weight: 600; color: #1a1a1a;
+      padding: 2px 6px; border-radius: 4px; letter-spacing: 0;
+      transition: background 0.1s, color 0.1s;
+    }
+    #folder-label.selected { background: #0064d3; color: #fff; }
+    #item-count { font-size: 13px; color: #6aaccc; letter-spacing: 0; }
+
+    #finder {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+      opacity: 0; pointer-events: none;
       transition: opacity 0.8s ease;
     }
+    #finder.visible { opacity: 1; pointer-events: all; }
 
-    #folder-wrap {
-      display: flex; flex-direction: column;
-      align-items: center; gap: 16px;
+    .titlebar {
+      height: 44px;
+      background: rgba(236,236,236,0.95);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid #d0d0d0;
+      display: flex; align-items: center;
+      padding: 0 16px; gap: 8px; flex-shrink: 0;
+    }
+    .traffic-light {
+      width: 12px; height: 12px; border-radius: 50%; cursor: none;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .traffic-light:hover { transform: scale(1.3); }
+    .tl-red { background: #ff5f57; }
+    .tl-yellow { background: #febc2e; }
+    .tl-green { background: #28c840; }
+    .titlebar-title {
+      flex: 1; text-align: center;
+      font-size: 13px; font-weight: 500; color: #1a1a1a;
+      margin-left: -60px;
+    }
+
+    .finder-body { display: flex; flex: 1; overflow: hidden; }
+
+    /* 사이드바 */
+    .sidebar {
+      width: 200px; min-width: 200px;
+      background: rgba(228,228,228,0.8);
+      border-right: 1px solid #c8c8c8;
+      padding: 12px 0; flex-shrink: 0;
+      overflow-y: auto;
+    }
+    .sidebar-heading {
+      font-size: 11px; font-weight: 600; color: #888;
+      letter-spacing: 0.5px; text-transform: uppercase;
+      padding: 0 16px; margin-bottom: 4px;
+    }
+    .sidebar-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 5px 16px; font-size: 13px; color: #1a1a1a;
+      border-radius: 6px; margin: 0 6px;
+      cursor: none;
+      transition: background 0.15s, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .sidebar-item:hover { background: rgba(0,0,0,0.06); transform: scale(1.03) translateX(3px); }
+    .sidebar-item.active { background: #0064d3; color: #fff; }
+    .sidebar-item.jelly-click { animation: slideJelly 0.4s ease forwards; }
+    .sidebar-icon {
+      font-size: 16px; width: 20px; text-align: center;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .sidebar-item:hover .sidebar-icon { transform: scale(1.2) rotate(-5deg); }
+
+    /* 폴더 펼치기 아이템 */
+    .sidebar-folder {
+      display: flex; align-items: center; gap: 8px;
+      padding: 5px 16px; font-size: 13px; color: #1a1a1a;
+      border-radius: 6px; margin: 0 6px;
+      cursor: none;
+      transition: background 0.15s, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .sidebar-folder:hover { background: rgba(0,0,0,0.06); transform: scale(1.03) translateX(3px); }
+    .sidebar-folder.active { background: #0064d3; color: #fff; }
+    .folder-arrow {
+      font-size: 10px; width: 12px;
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: inline-block;
+    }
+    .folder-arrow.open { transform: rotate(90deg); }
+
+    /* 펼쳐진 프로젝트 리스트 */
+    .folder-children {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .folder-children.open { max-height: 300px; }
+    .folder-child-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 4px 16px 4px 36px;
+      font-size: 12px; color: #1a1a1a;
+      border-radius: 6px; margin: 0 6px;
+      cursor: none;
+      transition: background 0.15s, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: expandDown 0.3s ease;
+    }
+    .folder-child-item:hover { background: rgba(0,0,0,0.06); transform: translateX(3px); }
+    .folder-child-item.active { background: #0064d3; color: #fff; }
+    .child-thumb {
+      width: 24px; height: 24px; border-radius: 4px;
+      background: #e0e0e0; overflow: hidden; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 12px;
+    }
+    .child-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+    .finder-main { flex: 1; display: flex; overflow: hidden; }
+
+    .project-viewer {
+      flex: 1; display: flex; flex-direction: column;
+      overflow: hidden; background: #ffffff;
+    }
+    .viewer-top { flex: 1; display: flex; overflow: hidden; }
+    .main-image-area {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      background: #ffffff; overflow: hidden; padding: 24px;
+    }
+    .main-image-area img {
+      max-width: 100%; max-height: 100%; object-fit: contain;
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .main-image-area img:hover { transform: scale(1.02); }
+
+    .info-panel {
+      width: 260px; min-width: 260px;
+      border-left: 1px solid #e8e8e8;
+      overflow-y: auto; padding: 20px;
+      background: #fafafa; flex-shrink: 0;
+      animation: slideJelly 0.4s ease;
+    }
+    .info-filename { font-size: 13px; font-weight: 600; margin-bottom: 2px; word-break: break-all; }
+    .info-filesize { font-size: 11px; color: #888; margin-bottom: 16px; }
+    .info-heading { font-size: 12px; font-weight: 700; color: #1a1a1a; margin-bottom: 8px; margin-top: 16px; }
+    .info-row {
+      display: flex; justify-content: space-between;
+      font-size: 11px; padding: 4px 0; border-bottom: 1px solid #f0f0f0;
+    }
+    .info-label { color: #888; }
+    .info-value { color: #1a1a1a; font-weight: 500; text-align: right; }
+
+    .thumbnail-strip {
+      height: 90px; flex-shrink: 0;
+      border-top: 1px solid #e0e0e0; background: #f0f0f0;
+      display: flex; align-items: center; gap: 6px; padding: 0 12px; overflow-x: auto;
+    }
+    .thumb-item {
+      width: 64px; height: 64px; flex-shrink: 0;
+      border-radius: 6px; overflow: hidden; border: 2px solid transparent;
+      cursor: none; transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.15s;
+    }
+    .thumb-item:hover { transform: scale(1.15) translateY(-4px); }
+    .thumb-item.active { border-color: #0064d3; transform: scale(1.1) translateY(-3px); }
+    .thumb-item img { width: 100%; height: 100%; object-fit: cover; }
+
+    .preview-empty {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; color: #ccc; gap: 12px;
+      animation: popIn 0.5s ease;
+    }
+
+    /* Currently Into 카드 */
+    .currently-card {
+      background: #f5f5f5; border-radius: 16px;
+      padding: 20px; display: flex; align-items: center; gap: 16px;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
       cursor: none;
     }
-
-    #folder-img {
-      width: 120px;
-      transition: transform 0.3s ease;
-      filter: drop-shadow(0 8px 24px rgba(0,0,0,0.12));
+    .currently-card:hover { transform: scale(1.02) translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+    .currently-icon {
+      width: 64px; height: 64px; border-radius: 14px;
+      background: #1a1a1a; display: flex; align-items: center;
+      justify-content: center; font-size: 28px; flex-shrink: 0;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
+    .currently-card:hover .currently-icon { transform: scale(1.1) rotate(5deg); }
 
-    #folder-wrap:hover #folder-img {
-      transform: scale(1.08) translateY(-4px);
-    }
-
-    .folder-label {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 18px;
-      font-weight: 300;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      color: var(--text);
-      opacity: 0.7;
-    }
-
-    .click-hint {
-      font-size: 10px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--text);
-      opacity: 0.35;
-      margin-top: 8px;
-      animation: pulse 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 0.35; }
-      50% { opacity: 0.7; }
-    }
-
-    /* Gallery */
-    #gallery {
+    /* 모달 */
+    #about-modal, #message-modal {
       position: fixed; inset: 0;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.6s ease;
-    }
-
-    #gallery.visible {
-      opacity: 1;
-      pointer-events: all;
-    }
-
-    .artwork-card {
-      position: absolute;
-      cursor: none;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      opacity: 0;
-    }
-
-    .artwork-card.placed {
-      opacity: 1;
-    }
-
-    .artwork-card:hover {
-      transform: rotate(0deg) scale(1.04) !important;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.2) !important;
-      z-index: 5;
-    }
-
-    .artwork-card img {
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    /* Back button */
-    #back-btn {
-      position: fixed;
-      top: 32px; left: 32px;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 10px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--text);
-      opacity: 0.5;
-      cursor: none;
-      z-index: 20;
-      display: none;
-      transition: opacity 0.3s ease;
-    }
-    #back-btn:hover { opacity: 1; }
-    #back-btn.visible { display: block; }
-
-    /* Studio name */
-    #studio-name {
-      position: fixed;
-      top: 32px; right: 32px;
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 13px;
-      letter-spacing: 5px;
-      text-transform: uppercase;
-      color: var(--text);
-      opacity: 0;
-      z-index: 20;
-      transition: opacity 0.6s ease 0.4s;
-    }
-    #studio-name.visible { opacity: 0.4; }
-
-    /* Modal */
-    #modal {
-      position: fixed; inset: 0;
-      background: rgba(245, 242, 238, 0.96);
       display: flex; align-items: center; justify-content: center;
-      z-index: 100;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.4s ease;
+      z-index: 200; opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+      background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
     }
-    #modal.open {
-      opacity: 1;
-      pointer-events: all;
-    }
-    #modal img {
-      max-width: 85vw;
-      max-height: 85vh;
-      object-fit: contain;
-      box-shadow: 0 30px 80px rgba(0,0,0,0.15);
-      transform: scale(0.95);
-      transition: transform 0.4s ease;
-    }
-    #modal.open img { transform: scale(1); }
+    #about-modal.open, #message-modal.open { opacity: 1; pointer-events: all; }
 
-    #modal-close {
-      position: fixed;
-      top: 32px; right: 32px;
-      font-size: 10px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      cursor: none;
-      opacity: 0.5;
-      transition: opacity 0.3s;
+    .quicklook-window {
+      background: #f5f5f5; border-radius: 12px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+      overflow: hidden; width: 560px;
+      animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    #modal-close:hover { opacity: 1; }
+    .ql-titlebar {
+      height: 40px; background: rgba(236,236,236,0.98);
+      border-bottom: 1px solid #d0d0d0;
+      display: flex; align-items: center; padding: 0 14px; gap: 8px;
+    }
+    .ql-close {
+      width: 12px; height: 12px; border-radius: 50%;
+      background: #ff5f57; cursor: none;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .ql-close:hover { transform: scale(1.3); }
+    .ql-body { display: flex; align-items: center; gap: 32px; padding: 36px 40px; }
+    .ql-icon {
+      width: 120px; height: 120px; border-radius: 24px;
+      background: #1a1a1a; display: flex; align-items: center;
+      justify-content: center; font-size: 48px; flex-shrink: 0;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .ql-icon:hover { transform: scale(1.08) rotate(5deg); }
+    .ql-info h2 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+    .ql-info p { font-size: 13px; color: #888; line-height: 1.8; }
+
+    .imessage-window {
+      background: #ffffff; border-radius: 12px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+      overflow: hidden; width: 400px;
+      animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .imsg-titlebar {
+      height: 52px; background: #f5f5f5;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex; align-items: center; padding: 0 14px; gap: 8px;
+    }
+    .imsg-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #0064d3; display: flex; align-items: center;
+      justify-content: center; color: white; font-size: 13px; font-weight: 600;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .imsg-avatar:hover { transform: scale(1.15) rotate(-5deg); }
+    .imsg-name { font-size: 14px; font-weight: 600; }
+    .imsg-status { font-size: 11px; color: #888; }
+    .imsg-body {
+      padding: 20px 16px; min-height: 160px;
+      display: flex; flex-direction: column; gap: 12px;
+      overflow-y: auto; max-height: 240px;
+    }
+    .imsg-bubble {
+      background: #e9e9eb; border-radius: 18px 18px 18px 4px;
+      padding: 10px 14px; font-size: 14px; color: #1a1a1a;
+      max-width: 80%; align-self: flex-start;
+      animation: slideJelly 0.3s ease;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .imsg-bubble:hover { transform: scale(1.02) translateX(3px); }
+    .imsg-bubble.sent {
+      background: #0064d3; color: white;
+      border-radius: 18px 18px 4px 18px; align-self: flex-end;
+    }
+    .imsg-input-row {
+      display: flex; align-items: center;
+      padding: 10px 12px; border-top: 1px solid #e0e0e0; gap: 8px;
+    }
+    .imsg-input {
+      flex: 1; border: 1px solid #d0d0d0; border-radius: 20px;
+      padding: 8px 14px; font-size: 14px; outline: none;
+      font-family: -apple-system, sans-serif; cursor: text;
+      transition: border-color 0.2s, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .imsg-input:focus { border-color: #0064d3; transform: scale(1.01); }
+    .imsg-send {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: #0064d3; border: none; color: white; font-size: 14px;
+      cursor: none; display: flex; align-items: center; justify-content: center;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .imsg-send:hover { transform: scale(1.2); }
   </style>
 </head>
 <body>
 
-  <div class="cursor" id="cursor"></div>
+  <div class="fake-cursor" id="fakeCursor">
+    <svg viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2 2L2 22L7 17L11 26L13.5 25L9.5 16L16 16L2 2Z" fill="#1a1a1a" stroke="white" stroke-width="1"/>
+    </svg>
+  </div>
+  <div class="click-ring" id="clickRing"></div>
 
-  <!-- Intro -->
   <div id="intro">
-    <div id="folder-wrap" onclick="openGallery()">
-      <img id="folder-img" src="Loading.png" alt="D.T.B Studio"/>
-      <span class="folder-label">D.T.B Studio</span>
-      <span class="click-hint">Click to explore</span>
+    <img id="folder-img" src="Loading.png" alt="D.T.B Studio"/>
+    <span id="folder-label">D.T.B Studio Artworks</span>
+    <span id="item-count">2 items</span>
+  </div>
+
+  <div id="finder">
+    <div class="titlebar">
+      <div class="traffic-light tl-red"></div>
+      <div class="traffic-light tl-yellow"></div>
+      <div class="traffic-light tl-green"></div>
+      <span class="titlebar-title">D.T.B Studio</span>
+    </div>
+    <div class="finder-body">
+
+      <!-- 사이드바 -->
+      <div class="sidebar">
+        <div style="padding: 4px 0 8px;">
+          <div class="sidebar-heading">Favourites</div>
+
+          <!-- 폴더 펼치기 -->
+          <div class="sidebar-folder" id="sb-portfolio" onclick="toggleFolder()">
+            <span class="folder-arrow" id="folder-arrow">▶</span>
+            <span style="font-size:16px;">📁</span>
+            <span>D.T.B Studio</span>
+          </div>
+          <!-- 펼쳐지는 프로젝트 리스트 -->
+          <div class="folder-children" id="folder-children">
+            <div class="folder-child-item" id="child-0" onclick="jellyClick(this); selectProject(0)">
+              <div class="child-thumb">
+                <img src="dtbstudio.png" onerror="this.parentElement.innerHTML='🎨'"/>
+              </div>
+              DTB Studio
+            </div>
+            <div class="folder-child-item" id="child-1" onclick="jellyClick(this); selectProject(1)">
+              <div class="child-thumb">
+                <img src="Absensemodel3.png" onerror="this.parentElement.innerHTML='🎨'"/>
+              </div>
+              Absense Model
+            </div>
+          </div>
+
+          <div class="sidebar-item" id="sb-about" onclick="jellyClick(this); showAbout()">
+            <span class="sidebar-icon">👤</span> About
+          </div>
+          <div class="sidebar-item" id="sb-currently" onclick="jellyClick(this); showCurrently()">
+            <span class="sidebar-icon">📌</span> Currently Into
+          </div>
+          <div class="sidebar-item" id="sb-message" onclick="jellyClick(this); showMessage()">
+            <span class="sidebar-icon">💬</span> Recent Message
+          </div>
+        </div>
+      </div>
+
+      <!-- 메인 뷰어 -->
+      <div class="finder-main">
+        <div class="project-viewer" id="project-viewer">
+          <div class="preview-empty">
+            <div style="font-size:48px;">👆</div>
+            <div style="font-size:13px;">Select a project to preview</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Gallery -->
-  <div id="gallery">
-    <div id="back-btn" onclick="closeGallery()">← Back</div>
-    <div id="studio-name">D.T.B Studio Artworks</div>
+  <!-- About -->
+  <div id="about-modal">
+    <div class="quicklook-window">
+      <div class="ql-titlebar">
+        <div class="ql-close" onclick="closeAbout()"></div>
+      </div>
+      <div class="ql-body">
+        <div class="ql-icon">🎨</div>
+        <div class="ql-info">
+          <h2>Your Name Here</h2>
+          <p>Creative Director / Designer<br/>Based in Sydney, Australia<br/><br/>Born in Seoul, raised across cities throughout Australia — a life shaped by diverse experiences.</p>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Modal -->
-  <div id="modal" onclick="closeModal()">
-    <span id="modal-close">✕ Close</span>
-    <img id="modal-img" src="" alt=""/>
+  <!-- iMessage -->
+  <div id="message-modal">
+    <div class="imessage-window">
+      <div class="imsg-titlebar">
+        <div class="ql-close" onclick="closeMessage()"></div>
+        <div class="imsg-avatar">D</div>
+        <div>
+          <div class="imsg-name">D.T.B Studio</div>
+          <div class="imsg-status">Available for projects</div>
+        </div>
+      </div>
+      <div class="imsg-body" id="imsg-body">
+        <div class="imsg-bubble">Hey! Feel free to reach out 👋</div>
+        <div class="imsg-bubble">I'm open to collaborations and new projects.</div>
+      </div>
+      <div class="imsg-input-row">
+        <input class="imsg-input" id="imsg-input" type="text" placeholder="iMessage" onkeydown="if(event.key==='Enter') sendMessage()"/>
+        <button class="imsg-send" onclick="sendMessage()">↑</button>
+      </div>
+    </div>
   </div>
 
   <script>
-    // Custom cursor
-    const cursor = document.getElementById('cursor');
+    const fakeCursor  = document.getElementById('fakeCursor');
+    const clickRing   = document.getElementById('clickRing');
+    const folderImg   = document.getElementById('folder-img');
+    const folderLabel = document.getElementById('folder-label');
+    let cursorX = 0, cursorY = 0, isAuto = true;
+    let folderOpen = false;
+
+    function jellyClick(el) {
+      el.classList.remove('jelly-click');
+      void el.offsetWidth;
+      el.classList.add('jelly-click');
+      setTimeout(() => el.classList.remove('jelly-click'), 400);
+    }
+
     document.addEventListener('mousemove', e => {
-      cursor.style.left = e.clientX + 'px';
-      cursor.style.top = e.clientY + 'px';
-    });
-    document.addEventListener('mouseover', e => {
-      if (e.target.closest('#folder-wrap, .artwork-card, #back-btn, #modal-close')) {
-        cursor.classList.add('hover');
-      } else {
-        cursor.classList.remove('hover');
+      if (!isAuto) {
+        cursorX = e.clientX; cursorY = e.clientY;
+        fakeCursor.style.left = cursorX+'px';
+        fakeCursor.style.top  = cursorY+'px';
       }
     });
 
-    const artworks = [
-      { src: 'dtbstudio.png', w: 340, h: 420 },
-      { src: 'Absensemodel3.png', w: 300, h: 380 },
-    ];
-
-    // Scatter positions
-    const positions = [
-      { left: '12%', top: '15%', rotate: '-4deg' },
-      { left: '55%', top: '20%', rotate: '3deg' },
-    ];
-
-    function openGallery() {
-      const intro = document.getElementById('intro');
-      const gallery = document.getElementById('gallery');
-      const backBtn = document.getElementById('back-btn');
-      const studioName = document.getElementById('studio-name');
-
-      intro.style.opacity = '0';
-      setTimeout(() => { intro.style.pointerEvents = 'none'; }, 800);
-
-      // Create cards
-      artworks.forEach((art, i) => {
-        const card = document.createElement('div');
-        card.className = 'artwork-card';
-        card.style.width = art.w + 'px';
-        card.style.height = art.h + 'px';
-        card.style.left = positions[i].left;
-        card.style.top = positions[i].top;
-        card.style.transform = `rotate(${positions[i].rotate})`;
-        card.style.boxShadow = '0 12px 40px rgba(0,0,0,0.12)';
-
-        const img = document.createElement('img');
-        img.src = art.src;
-        img.alt = 'Artwork';
-        card.appendChild(img);
-        card.addEventListener('click', () => openModal(art.src));
-        gallery.appendChild(card);
-
-        setTimeout(() => {
-          card.classList.add('placed');
-          card.style.transition = `opacity 0.5s ease ${i * 0.15}s, transform 0.3s ease, box-shadow 0.3s ease`;
-        }, 100 + i * 150);
-      });
-
-      gallery.classList.add('visible');
-      backBtn.classList.add('visible');
-      studioName.classList.add('visible');
+    function animateCursorTo(tx, ty, dur, cb) {
+      const sx = cursorX, sy = cursorY, t0 = performance.now();
+      (function step(now) {
+        const p = Math.min((now-t0)/dur, 1);
+        const e = p<0.5 ? 2*p*p : -1+(4-2*p)*p;
+        cursorX = sx+(tx-sx)*e; cursorY = sy+(ty-sy)*e;
+        fakeCursor.style.left = cursorX+'px';
+        fakeCursor.style.top  = cursorY+'px';
+        p<1 ? requestAnimationFrame(step) : cb&&cb();
+      })(t0);
     }
 
-    function closeGallery() {
-      const intro = document.getElementById('intro');
-      const gallery = document.getElementById('gallery');
-      const backBtn = document.getElementById('back-btn');
-      const studioName = document.getElementById('studio-name');
+    function doClick(x, y, cb) {
+      folderLabel.classList.add('selected');
+      folderImg.classList.remove('clicking');
+      void folderImg.offsetWidth;
+      folderImg.classList.add('clicking');
+      fakeCursor.style.transform = 'scale(0.8)';
+      setTimeout(() => fakeCursor.style.transform='scale(1)', 150);
+      clickRing.style.left = x+'px'; clickRing.style.top = y+'px';
+      clickRing.classList.remove('animate');
+      void clickRing.offsetWidth;
+      clickRing.classList.add('animate');
+      setTimeout(() => cb&&cb(), 400);
+    }
 
-      gallery.classList.remove('visible');
-      backBtn.classList.remove('visible');
-      studioName.classList.remove('visible');
-      intro.style.opacity = '1';
-      intro.style.pointerEvents = 'all';
-
-      // Remove cards
+    window.addEventListener('load', () => {
+      cursorX = 80; cursorY = window.innerHeight-80;
+      fakeCursor.style.left = cursorX+'px';
+      fakeCursor.style.top  = cursorY+'px';
       setTimeout(() => {
-        document.querySelectorAll('.artwork-card').forEach(c => c.remove());
-      }, 600);
+        const r = folderImg.getBoundingClientRect();
+        animateCursorTo(r.left+r.width/2, r.top+r.height/2, 2000, () => {
+          doClick(r.left+r.width/2, r.top+r.height/2, () => {
+            openFinder();
+            setTimeout(() => { isAuto = false; }, 800);
+          });
+        });
+      }, 500);
+    });
+
+    function openFinder() {
+      document.getElementById('intro').style.opacity = '0';
+      setTimeout(() => { document.getElementById('intro').style.display='none'; }, 800);
+      document.getElementById('finder').classList.add('visible');
     }
 
-    function openModal(src) {
-      const modal = document.getElementById('modal');
-      const modalImg = document.getElementById('modal-img');
-      modalImg.src = src;
-      modal.classList.add('open');
+    // 폴더 펼치기/닫기
+    function toggleFolder() {
+      folderOpen = !folderOpen;
+      const children = document.getElementById('folder-children');
+      const arrow = document.getElementById('folder-arrow');
+      const sb = document.getElementById('sb-portfolio');
+      children.classList.toggle('open', folderOpen);
+      arrow.classList.toggle('open', folderOpen);
+      sb.classList.toggle('active', folderOpen);
     }
 
-    function closeModal() {
-      document.getElementById('modal').classList.remove('open');
+    const projects = [
+      {
+        name: 'DTB Studio',
+        images: [
+          { src: 'dtbstudio.png', name: 'dtbstudio.png', size: '2.1 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1200', resolution: '72 × 72', colorSpace: 'RGB' },
+          { src: 'dtbstudio.png', name: 'dtbstudio_2.png', size: '1.8 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1200', resolution: '72 × 72', colorSpace: 'RGB' },
+          { src: 'dtbstudio.png', name: 'dtbstudio_3.png', size: '2.0 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1200', resolution: '72 × 72', colorSpace: 'RGB' },
+          { src: 'dtbstudio.png', name: 'dtbstudio_4.png', size: '1.9 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1200', resolution: '72 × 72', colorSpace: 'RGB' },
+        ]
+      },
+      {
+        name: 'Absense Model',
+        images: [
+          { src: 'Absensemodel3.png', name: 'Absensemodel1.png', size: '3.2 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1500', resolution: '72 × 72', colorSpace: 'RGB' },
+          { src: 'Absensemodel3.png', name: 'Absensemodel2.png', size: '2.9 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1500', resolution: '72 × 72', colorSpace: 'RGB' },
+          { src: 'Absensemodel3.png', name: 'Absensemodel3.png', size: '3.1 MB', date: 'Today, 12:00 pm', dimensions: '1200 × 1500', resolution: '72 × 72', colorSpace: 'RGB' },
+        ]
+      }
+    ];
+
+    let currentProject = null;
+    let currentImageIndex = 0;
+
+    function selectProject(i) {
+      clearInterval(window.clockInterval);
+      document.querySelectorAll('.folder-child-item').forEach((el, idx) => {
+        el.classList.toggle('active', idx === i);
+      });
+      currentProject = projects[i];
+      currentImageIndex = 0;
+      renderViewer();
+    }
+
+    function renderViewer() {
+      const p = currentProject;
+      const img = p.images[currentImageIndex];
+      document.getElementById('project-viewer').innerHTML = `
+        <div class="viewer-top">
+          <div class="main-image-area">
+            <img src="${img.src}" alt="${img.name}"/>
+          </div>
+          <div class="info-panel">
+            <div class="info-filename">${img.name}</div>
+            <div class="info-filesize">${img.size}</div>
+            <div class="info-heading">Information</div>
+            <div class="info-row"><span class="info-label">Created</span><span class="info-value">${img.date}</span></div>
+            <div class="info-row"><span class="info-label">Modified</span><span class="info-value">${img.date}</span></div>
+            <div class="info-row"><span class="info-label">Dimensions</span><span class="info-value">${img.dimensions}</span></div>
+            <div class="info-row"><span class="info-label">Resolution</span><span class="info-value">${img.resolution}</span></div>
+            <div class="info-row"><span class="info-label">Colour space</span><span class="info-value">${img.colorSpace}</span></div>
+          </div>
+        </div>
+        <div class="thumbnail-strip">
+          ${p.images.map((im, idx) => `
+            <div class="thumb-item ${idx === currentImageIndex ? 'active' : ''}" onclick="switchImage(${idx}, this)">
+              <img src="${im.src}"/>
+            </div>
+          `).join('')}
+        </div>`;
+    }
+
+    function switchImage(idx, el) {
+      jellyClick(el);
+      currentImageIndex = idx;
+      renderViewer();
+    }
+
+    const currentlyItems = [
+      { icon: '🤖', title: 'AI Image Creation', desc: 'Placeholder description here' },
+      { icon: '✍️', title: 'Lettering', desc: 'Placeholder description here' },
+    ];
+
+    function showCurrently() {
+      setActive('sb-currently');
+      clearInterval(window.clockInterval);
+      const viewer = document.getElementById('project-viewer');
+
+      function renderClock() {
+        const now = new Date();
+        const date = now.toLocaleDateString('en-AU', {
+          timeZone: 'Australia/Brisbane',
+          weekday: 'long', month: 'long', day: 'numeric'
+        });
+        const time = now.toLocaleTimeString('en-AU', {
+          timeZone: 'Australia/Brisbane',
+          hour: '2-digit', minute: '2-digit', second: '2-digit'
+        });
+        const el = document.getElementById('live-clock');
+        if (el) el.innerHTML = `${date}<br/>${time}`;
+      }
+
+      viewer.innerHTML = `
+        <div style="padding:32px; overflow-y:auto; height:100%;">
+          <div style="text-align:center; margin-bottom:40px;">
+            <div style="font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#aaa; margin-bottom:12px;">D.T.B STUDIO</div>
+            <div id="live-clock" style="font-size:28px; font-weight:300; color:#1a1a1a; line-height:1.5;"></div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            ${currentlyItems.map((item, i) => `
+              <div class="currently-card" style="animation: popIn ${0.3 + i*0.1}s ease;">
+                <div class="currently-icon">${item.icon}</div>
+                <div>
+                  <div style="font-size:15px; font-weight:600; margin-bottom:4px;">${item.title}</div>
+                  <div style="font-size:13px; color:#888;">${item.desc}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>`;
+
+      renderClock();
+      window.clockInterval = setInterval(renderClock, 1000);
+    }
+
+    function setActive(id) {
+      document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function showAbout() {
+      setActive('sb-about');
+      clearInterval(window.clockInterval);
+      document.getElementById('about-modal').classList.add('open');
+    }
+    function showMessage() {
+      setActive('sb-message');
+      clearInterval(window.clockInterval);
+      document.getElementById('message-modal').classList.add('open');
+    }
+    function closeAbout() { document.getElementById('about-modal').classList.remove('open'); }
+    function closeMessage() { document.getElementById('message-modal').classList.remove('open'); }
+
+    function sendMessage() {
+      const input = document.getElementById('imsg-input');
+      const text = input.value.trim();
+      if (!text) return;
+      const body = document.getElementById('imsg-body');
+      const bubble = document.createElement('div');
+      bubble.className = 'imsg-bubble sent';
+      bubble.textContent = text;
+      body.appendChild(bubble);
+      input.value = '';
+      body.scrollTop = body.scrollHeight;
     }
   </script>
 </body>
