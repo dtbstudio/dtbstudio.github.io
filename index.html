@@ -949,13 +949,7 @@
 
     function renderViewer() {
       const p = currentProject;
-      const backBtn = window.innerWidth <= 768 ? `
-        <div onclick="document.querySelector('.sidebar').classList.remove('collapsed'); window.scrollTo({top:0, behavior:'smooth'});"
-          style="padding:12px 16px; font-size:13px; color:#0064d3; cursor:pointer; background:#f5f5f5; border-bottom:1px solid #e0e0e0;">
-          ← Back
-        </div>` : '';
       document.getElementById('project-viewer').innerHTML = `
-        ${backBtn}
         <div style="overflow-y:auto; height:100%; background:#fff;">
           <div style="display:flex; flex-wrap:wrap; gap:2px;">
             ${p.images.map((im, idx) => `
@@ -1006,10 +1000,16 @@
 
     function showAbout() {
       setActive('sb-about');
+      if (window.innerWidth <= 768) {
+        document.querySelector('.sidebar').classList.remove('collapsed');
+      }
       document.getElementById('about-modal').classList.add('open');
     }
     function showMessage() {
       setActive('sb-message');
+      if (window.innerWidth <= 768) {
+        document.querySelector('.sidebar').classList.remove('collapsed');
+      }
       document.getElementById('message-modal').classList.add('open');
     }
     function closeAbout() {
