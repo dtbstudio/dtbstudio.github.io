@@ -72,6 +72,7 @@
       0%   { opacity: 0; transform: translateY(40px); }
       100% { opacity: 1; transform: translateY(0); }
     }
+
     .fade-up {
       animation: fadeUp 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
       opacity: 0;
@@ -950,6 +951,10 @@
     function renderViewer() {
       const p = currentProject;
       document.getElementById('project-viewer').innerHTML = `
+        <div class="mobile-back-btn" onclick="document.querySelector('.sidebar').classList.remove('collapsed')"
+          style="padding:12px 16px; font-size:13px; color:#0064d3; cursor:pointer; border-bottom:1px solid #f0f0f0;">
+          ← Back
+        </div>
         <div style="overflow-y:auto; height:100%; background:#fff;">
           <div style="display:flex; flex-wrap:wrap; gap:2px;">
             ${p.images.map((im, idx) => `
