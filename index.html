@@ -414,6 +414,10 @@
       }
       .finder-main {
         padding-bottom: 80px;
+        width: 100%;
+      }
+      .sidebar.hidden {
+        display: none;
       }
     }
   </style>
@@ -467,6 +471,10 @@
                 <img src="images/Absensemodel1.png" onerror="this.parentElement.innerHTML='🎨'"/>
               </div>
               Absense Model
+            </div>
+            <div class="folder-child-item" onclick="jellyClick(this); selectProject(5)">
+              <div class="child-thumb"><img src="images/fussy_rabbit_1.png" onerror="this.parentElement.innerHTML='🎨'"/></div>
+              Fussy Rabbit
             </div>
           </div>
 
@@ -737,6 +745,28 @@
           { src: 'images/lettering1.png', layout: 'full' },
           { src: 'images/lettering2.png', layout: 'half' },
           { src: 'images/lettering3.png', layout: 'half' },
+        ]
+      },
+      {
+        name: '프로젝트 이름',
+        description: '프로젝트 설명.',
+        year: '2025',
+        category: 'Graphic Design',
+        client: 'Client Name',
+        images: [
+          { src: 'images/img1.png', layout: 'full' },
+          { src: 'images/img2.png', layout: 'half' },
+          { src: 'images/img3.png', layout: 'half' },
+        ]
+      },
+      {
+        name: 'Fussy Rabbit',
+        description: 'Project description placeholder.',
+        year: '2025',
+        category: 'Graphic Design',
+        client: 'Self-initiated',
+        images: [
+          { src: 'images/fussy_rabbit_1.png', layout: 'full' },
         ]
       }
     ];
