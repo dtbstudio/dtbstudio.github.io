@@ -395,6 +395,27 @@
     }
     @media (max-width: 768px) { .imsg-send { cursor: pointer; } }
     .imsg-send:hover { transform: scale(1.2); }
+
+    @media (max-width: 768px) {
+      .sidebar-clock-area {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        background: #f5f5f5;
+        border-top: 1px solid #e0e0e0;
+        z-index: 50;
+        padding: 8px 16px;
+      }
+      .sidebar-section-title,
+      .currently-sidebar-card {
+        display: none;
+      }
+      .sidebar {
+        max-height: 200px !important;
+      }
+      .finder-main {
+        padding-bottom: 80px;
+      }
+    }
   </style>
 </head>
 <body>
