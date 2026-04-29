@@ -444,6 +444,10 @@
       .quicklook-window { width: 90vw; }
       .ql-body { flex-direction: column; padding: 24px; }
       .imessage-window { width: 90vw; }
+
+      .sidebar-section-title,
+      .currently-sidebar-card { order: 999; }
+      .sidebar-content { display: flex; flex-direction: column; }
     }
   </style>
 </head>
@@ -743,6 +747,16 @@
       document.getElementById('folder-children').classList.toggle('open', folderOpen);
       document.getElementById('folder-arrow').classList.toggle('open', folderOpen);
       document.getElementById('sb-portfolio').classList.toggle('active', folderOpen);
+    }
+
+    if (window.innerWidth <= 768) {
+      document.querySelectorAll('.folder-child-item, .sidebar-item, .currently-sidebar-card').forEach(el => {
+        el.addEventListener('click', () => {
+          setTimeout(() => {
+            document.querySelector('.sidebar').classList.add('collapsed');
+          }, 300);
+        });
+      });
     }
 
     const projects = [
