@@ -151,7 +151,6 @@
       padding: 8px 0 0; flex-shrink: 0;
       display: flex; flex-direction: column;
       transition: max-height 0.6s ease, opacity 0.6s ease;
-      max-height: 800px;
       overflow-y: auto;
     }
 
@@ -780,14 +779,18 @@
       },
       {
         name: 'Absense Model',
-        description: 'Project description placeholder.',
-        year: '2024',
-        category: 'Graphic Design',
-        client: 'Self-initiated',
+        description: 'Brand Identity, Art Direction, Print Materials',
+        year: '2026',
+        category: 'Fashion',
+        client: 'Absense',
         images: [
-          { src: 'images/Absensemodel1.png', layout: 'full' },
-          { src: 'images/Absensemodel2.png.png', layout: 'half' },
-          { src: 'images/Absensemodel3.png', layout: 'half' },
+          { src: 'images/absense_1(Full).png', layout: 'full' },
+          { src: 'images/absense_2(Half).png', layout: 'half' },
+          { src: 'images/absense_3(Half).png', layout: 'half' },
+          { src: 'images/absense_4(Full).png', layout: 'full' },
+          { src: 'images/absense_5(Full).png', layout: 'full' },
+          { src: 'images/absense_6(Full).png', layout: 'full' },
+          { src: 'images/absense_7(Full).png', layout: 'full' },
         ]
       },
       {
@@ -889,14 +892,17 @@
     const currentlyProjects = [
       {
         name: 'AI Image Creation',
-        description: 'Placeholder description.',
-        year: '2024',
+        description: 'AI Image Creation, Art Direction',
+        year: '2026',
         category: 'AI / Design',
         client: 'Self-initiated',
         images: [
-          { src: 'images/ai1.png', layout: 'full' },
-          { src: 'images/ai2.png', layout: 'half' },
-          { src: 'images/ai3.png', layout: 'half' },
+          { src: 'images/ai__1(Full).png', layout: 'full' },
+          { src: 'images/ai__2(Half).png', layout: 'half' },
+          { src: 'images/ai__3(Half).png', layout: 'half' },
+          { src: 'images/ai__4(Full).png', layout: 'full' },
+          { src: 'images/ai__5(full).png', layout: 'full' },
+          { src: 'images/ai__6(Full).png', layout: 'full' },
         ]
       },
       {
@@ -974,7 +980,7 @@
         <div style="overflow-y:auto; height:100%; background:#fff;">
           <div style="display:flex; flex-wrap:wrap; gap:2px;">
             ${p.images.map((im, idx) => `
-              <img src="${im.src}" class="fade-up" style="width:${im.layout === 'half' ? 'calc(50% - 1px)' : '100%'}; height:500px; display:block; object-fit:cover; animation-delay:${idx * 0.15}s;"/>
+              <img src="${im.src}" class="fade-up" style="width:${im.layout === 'half' ? 'calc(50% - 1px)' : '100%'}; height:700px; display:block; object-fit:cover; animation-delay:${idx * 0.15}s;"/>
             `).join('')}
           </div>
           <div style="background:#fafafa; border-top:1px solid #e0e0e0; padding:24px;">
@@ -1006,6 +1012,13 @@
             `).join('')}
           </div>
         </div>`;
+      requestAnimationFrame(() => {
+        document.querySelectorAll('#project-viewer .fade-up').forEach(el => {
+          el.style.animation = 'none';
+          el.offsetHeight;
+          el.style.animation = '';
+        });
+      });
     }
 
     function switchImage(idx, el) {
