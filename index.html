@@ -325,9 +325,10 @@
       display: flex; align-items: center; padding: 0 14px; gap: 8px;
     }
     .ql-close {
-      width: 12px; height: 12px; border-radius: 50%;
-      background: #ff5f57; cursor: none;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: #ff5f57; cursor: pointer;
       transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative; z-index: 10; flex-shrink: 0;
     }
     @media (max-width: 768px) { .ql-close { cursor: pointer; } }
     .ql-close:hover { transform: scale(1.3); }
@@ -455,7 +456,7 @@
       .sidebar-section-title,
       .currently-sidebar-card { order: 999; }
       .sidebar-content { display: flex; flex-direction: column; }
-      .fade-up { height: 700px !important; max-height: 50vw !important; }
+      .fade-up { width: 100% !important; height: 350px !important; }
     }
   </style>
 </head>
@@ -474,64 +475,56 @@
 
   <div id="finder">
     <div class="titlebar">
-      <div class="traffic-light tl-red"></div>
-      <div class="traffic-light tl-yellow"></div>
-      <div class="traffic-light tl-green"></div>
       <div class="searchbar-wrap">
         <div class="searchbar">
           <span class="searchbar-icon">🔍</span>
           <span class="searchbar-text" id="searchbar-text"></span>
         </div>
       </div>
+      <div class="traffic-light tl-red" onclick="window.close()" style="margin-left:auto;"></div>
     </div>
     <div class="finder-body">
       <div class="sidebar">
         <div class="sidebar-content">
 
-          <!-- D.T.B Studio 폴더 — 아이콘 왼쪽, 화살표 오른쪽 -->
+          <!-- D.T.B Studio 폴더 -->
           <div class="sidebar-folder" id="sb-portfolio" onclick="toggleFolder()">
             <img class="sidebar-icon-img" src="images/widget____d.t.b studio.png" alt=""/>
             <span class="folder-name">D.T.B Studio</span>
             <span class="folder-arrow" id="folder-arrow">▶</span>
           </div>
           <div class="folder-children" id="folder-children">
-            <div class="folder-child-item" id="child-0" onclick="jellyClick(this); selectProject(0)">
-              <div class="child-thumb">
-                <img src="images/dtbstudio.png" onerror="this.parentElement.innerHTML='🎨'"/>
-              </div>
-              DTB Studio
-            </div>
-            <div class="folder-child-item" id="child-1" onclick="jellyClick(this); selectProject(1)">
-              <div class="child-thumb"><img src="images/Absensemodel1.png" onerror="this.parentElement.innerHTML='🎨'"/></div>
+            <div class="folder-child-item" onclick="jellyClick(this); selectProject(0)">
+              <div class="child-thumb" style="background:#e8e8e8; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; color:#555;">A</div>
               Absense Model
             </div>
-            <div class="folder-child-item" onclick="jellyClick(this); selectProject(2)">
-              <div class="child-thumb"><img src="images/henry_warden_1.png" onerror="this.parentElement.innerHTML='🎨'"/></div>
-              Henry Warden
+            <div class="folder-child-item" onclick="jellyClick(this); selectProject(1)">
+              <div class="child-thumb" style="background:#e8e8e8; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; color:#555;">B</div>
+              Bounce Seoul
             </div>
-            <div class="folder-child-item" onclick="jellyClick(this); selectProject(3)">
-              <div class="child-thumb"><img src="images/ecre_1.png" onerror="this.parentElement.innerHTML='🎨'"/></div>
+            <div class="folder-child-item" onclick="jellyClick(this); selectProject(2)">
+              <div class="child-thumb" style="background:#e8e8e8; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; color:#555;">E</div>
               ECRE
             </div>
+            <div class="folder-child-item" onclick="jellyClick(this); selectProject(3)">
+              <div class="child-thumb" style="background:#e8e8e8; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; color:#555;">F</div>
+              Fussy Rabbit
+            </div>
             <div class="folder-child-item" onclick="jellyClick(this); selectProject(4)">
-              <div class="child-thumb"><img src="images/gami_1.png" onerror="this.parentElement.innerHTML='🎨'"/></div>
+              <div class="child-thumb" style="background:#e8e8e8; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; color:#555;">G</div>
               Gami
             </div>
             <div class="folder-child-item" onclick="jellyClick(this); selectProject(5)">
-              <div class="child-thumb"><img src="images/oblica_1.png" onerror="this.parentElement.innerHTML='🎨'"/></div>
-              Oblica
+              <div class="child-thumb" style="background:#e8e8e8; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; color:#555;">H</div>
+              Henry Warden
             </div>
             <div class="folder-child-item" onclick="jellyClick(this); selectProject(6)">
-              <div class="child-thumb"><img src="images/red_ruby_1.png" onerror="this.parentElement.innerHTML='🎨'"/></div>
-              Red Ruby Flamingo Wine
+              <div class="child-thumb" style="background:#e8e8e8; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; color:#555;">O</div>
+              Oblica
             </div>
             <div class="folder-child-item" onclick="jellyClick(this); selectProject(7)">
-              <div class="child-thumb"><img src="images/bounce_seoul_1.png" onerror="this.parentElement.innerHTML='🎨'"/></div>
-              Bounce Seoul
-            </div>
-            <div class="folder-child-item" onclick="jellyClick(this); selectProject(8)">
-              <div class="child-thumb"><img src="images/fussy_rabbit_1.png" onerror="this.parentElement.innerHTML='🎨'"/></div>
-              Fussy Rabbit
+              <div class="child-thumb" style="background:#e8e8e8; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; color:#555;">R</div>
+              Red Ruby Flamingo Wine
             </div>
           </div>
 
@@ -771,23 +764,9 @@
 
     const projects = [
       {
-        name: 'DTB Studio',
-        description: 'Project description placeholder.',
-        year: '2024',
-        category: 'Graphic Design',
-        client: 'Self-initiated',
-        images: [
-          { src: 'images/dtbstudio.png', layout: 'full' },
-          { src: 'images/dtbstudio.png', layout: 'half' },
-          { src: 'images/dtbstudio.png', layout: 'half' },
-        ]
-      },
-      {
         name: 'Absense Model',
         description: 'Brand Identity, Art Direction, Print Materials',
-        year: '2026',
-        category: 'Fashion',
-        client: 'Absense',
+        year: '2026', category: 'Fashion', client: 'Absense',
         images: [
           { src: 'images/absense_1(Full).png', layout: 'full' },
           { src: 'images/absense_2(Half).png', layout: 'half' },
@@ -799,24 +778,20 @@
         ]
       },
       {
-        name: 'Henry Warden',
+        name: 'Bounce Seoul',
         description: 'Project description placeholder.',
-        year: '2024',
-        category: 'Graphic Design',
-        client: 'Placeholder',
+        year: '2024', category: 'Graphic Design', client: 'Placeholder',
         images: [
-          { src: 'images/henry_warden_1.png', layout: 'full' },
-          { src: 'images/henry_warden_2.png', layout: 'half' },
-          { src: 'images/henry_warden_3.png', layout: 'half' },
-          { src: 'images/henry_warden_4.png', layout: 'full' },
+          { src: 'images/bounce_seoul_1.png', layout: 'full' },
+          { src: 'images/bounce_seoul_2.png', layout: 'half' },
+          { src: 'images/bounce_seoul_3.png', layout: 'half' },
+          { src: 'images/bounce_seoul_4.png', layout: 'full' },
         ]
       },
       {
         name: 'ECRE',
         description: 'Project description placeholder.',
-        year: '2024',
-        category: 'Graphic Design',
-        client: 'Placeholder',
+        year: '2024', category: 'Graphic Design', client: 'Placeholder',
         images: [
           { src: 'images/ecre_1.png', layout: 'full' },
           { src: 'images/ecre_2.png', layout: 'half' },
@@ -825,11 +800,20 @@
         ]
       },
       {
+        name: 'Fussy Rabbit',
+        description: 'Project description placeholder.',
+        year: '2024', category: 'Graphic Design', client: 'Placeholder',
+        images: [
+          { src: 'images/fussy_rabbit_1.png', layout: 'full' },
+          { src: 'images/fussy_rabbit_2.png', layout: 'half' },
+          { src: 'images/fussy_rabbit_3.png', layout: 'half' },
+          { src: 'images/fussy_rabbit_4.png', layout: 'full' },
+        ]
+      },
+      {
         name: 'Gami',
         description: 'Project description placeholder.',
-        year: '2024',
-        category: 'Graphic Design',
-        client: 'Placeholder',
+        year: '2024', category: 'Graphic Design', client: 'Placeholder',
         images: [
           { src: 'images/gami_1.png', layout: 'full' },
           { src: 'images/gami_2.png', layout: 'half' },
@@ -838,11 +822,20 @@
         ]
       },
       {
+        name: 'Henry Warden',
+        description: 'Project description placeholder.',
+        year: '2024', category: 'Graphic Design', client: 'Placeholder',
+        images: [
+          { src: 'images/henry_warden_1.png', layout: 'full' },
+          { src: 'images/henry_warden_2.png', layout: 'half' },
+          { src: 'images/henry_warden_3.png', layout: 'half' },
+          { src: 'images/henry_warden_4.png', layout: 'full' },
+        ]
+      },
+      {
         name: 'Oblica',
         description: 'Project description placeholder.',
-        year: '2024',
-        category: 'Graphic Design',
-        client: 'Placeholder',
+        year: '2024', category: 'Graphic Design', client: 'Placeholder',
         images: [
           { src: 'images/oblica_1.png', layout: 'full' },
           { src: 'images/oblica_2.png', layout: 'half' },
@@ -853,40 +846,12 @@
       {
         name: 'Red Ruby Flamingo Wine',
         description: 'Project description placeholder.',
-        year: '2024',
-        category: 'Graphic Design',
-        client: 'Placeholder',
+        year: '2024', category: 'Graphic Design', client: 'Placeholder',
         images: [
           { src: 'images/red_ruby_1.png', layout: 'full' },
           { src: 'images/red_ruby_2.png', layout: 'half' },
           { src: 'images/red_ruby_3.png', layout: 'half' },
           { src: 'images/red_ruby_4.png', layout: 'full' },
-        ]
-      },
-      {
-        name: 'Bounce Seoul',
-        description: 'Project description placeholder.',
-        year: '2024',
-        category: 'Graphic Design',
-        client: 'Placeholder',
-        images: [
-          { src: 'images/bounce_seoul_1.png', layout: 'full' },
-          { src: 'images/bounce_seoul_2.png', layout: 'half' },
-          { src: 'images/bounce_seoul_3.png', layout: 'half' },
-          { src: 'images/bounce_seoul_4.png', layout: 'full' },
-        ]
-      },
-      {
-        name: 'Fussy Rabbit',
-        description: 'Project description placeholder.',
-        year: '2024',
-        category: 'Graphic Design',
-        client: 'Placeholder',
-        images: [
-          { src: 'images/fussy_rabbit_1.png', layout: 'full' },
-          { src: 'images/fussy_rabbit_2.png', layout: 'half' },
-          { src: 'images/fussy_rabbit_3.png', layout: 'half' },
-          { src: 'images/fussy_rabbit_4.png', layout: 'full' },
         ]
       }
     ];
