@@ -69,10 +69,10 @@
       100% { opacity: 1; transform: translateY(0); }
     }
     @keyframes viewerPop {
-      0%   { opacity: 0; transform: translateY(60px) scale(0.97); }
-      55%  { opacity: 1; transform: translateY(-6px) scale(1.01); }
-      75%  { transform: translateY(3px) scale(0.995); }
-      100% { opacity: 1; transform: translateY(0) scale(1); }
+      0%   { opacity: 0; transform: translateY(60px); }
+      55%  { opacity: 1; transform: translateY(-6px); }
+      75%  { transform: translateY(3px); }
+      100% { opacity: 1; transform: translateY(0); }
     }
     .fade-up {
       animation: fadeUp 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
@@ -963,7 +963,7 @@
         <div style="${isMobile ? '' : 'overflow-y:auto; height:100%;'} background:#fff;">
           <div style="display:flex; flex-wrap:wrap; gap:2px;">
             ${p.images.map((im, idx) => `
-              <img src="${im.src}" class="fade-up" style="width:${im.layout === 'half' && !isMobile ? 'calc(50% - 1px)' : '100%'}; height:${im.layout === 'half' && !isMobile ? '700px' : 'auto'}; display:block; object-fit:${im.layout === 'half' && !isMobile ? 'cover' : 'unset'}; animation-delay:${idx * 0.15}s;"/>
+              <img src="${im.src}" class="fade-up" style="width:${im.layout === 'half' ? 'calc(50% - 1px)' : '100%'}; height:${im.layout === 'half' ? '700px' : 'auto'}; display:block; object-fit:${im.layout === 'half' ? 'cover' : 'unset'}; animation-delay:${idx * 0.15}s;"/>
             `).join('')}
           </div>
           <div style="background:#fafafa; border-top:1px solid #e0e0e0; padding:24px;">
