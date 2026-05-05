@@ -65,7 +65,7 @@
       100% { opacity: 1; transform: translateY(0); }
     }
     @keyframes fadeUp {
-      0%   { opacity: 0; transform: translateY(40px); }
+      0%   { opacity: 0; transform: translateY(30px); }
       100% { opacity: 1; transform: translateY(0); }
     }
     @keyframes viewerPop {
@@ -75,8 +75,8 @@
       100% { opacity: 1; transform: translateY(0); }
     }
     .fade-up {
-      animation: fadeUp 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
       opacity: 0;
+      animation: fadeUp 1s ease forwards;
     }
     .viewer-pop {
       animation: viewerPop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
@@ -337,8 +337,8 @@
     }
     .ql-icon img { width: 70%; height: 70%; object-fit: contain; filter: brightness(0) invert(1); }
     .ql-icon:hover { transform: scale(1.08) rotate(5deg); }
-    .ql-info h2 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
-    .ql-info p { font-size: 13px; color: #888; line-height: 1.8; }
+    .ql-info h2 { font-size: 20px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.02em; line-height: 1.2; }
+    .ql-info p { font-size: 13px; color: #888; line-height: 1.5; }
 
     .imessage-window {
       background: #ffffff; border-radius: 12px;
@@ -402,7 +402,7 @@
       100% { opacity: 1; transform: translateY(0) scale(1); }
     }
     .imsg-bubble-anim {
-      animation: bubbleUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      animation: bubbleUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
       opacity: 0;
     }
     .imsg-contact {
@@ -557,8 +557,7 @@
             </div>
           </div>
 
-          <!-- Currently Into -->
-          <div class="sidebar-section-title">Currently Into</div>
+          <!-- Currently Into (텍스트 없이) -->
           <div class="currently-sidebar-card" onclick="jellyClick(this); selectCurrently(0)">
             <div class="currently-sidebar-icon">
               <img src="images/widget____ai.png" alt=""/>
@@ -577,6 +576,9 @@
               <div class="currently-sidebar-desc">Placeholder desc</div>
             </div>
           </div>
+
+          <!-- 구분선 -->
+          <div style="height:1px; background:#e0e0e0; margin:8px 16px;"></div>
 
           <!-- About -->
           <div class="sidebar-item" id="sb-about" onclick="jellyClick(this); showAbout()">
@@ -1047,10 +1049,10 @@
       body.innerHTML = '';
 
       const messages = [
-        { text: "Hey!! 👋", delay: 300, sent: false },
-        { text: "I'm Lany, a Graphic Designer based in Brisbane.", delay: 800, sent: false },
-        { text: "Feel free to reach out for collaborations!", delay: 1400, sent: false },
-        { text: "contact", delay: 2000, sent: false },
+        { text: "Hey!! 👋", delay: 400 },
+        { text: "I'm Lany, a Graphic Designer based in Brisbane.", delay: 1100 },
+        { text: "Feel free to reach out for collaborations!", delay: 1800 },
+        { text: "contact", delay: 2600 },
       ];
 
       messages.forEach(msg => {
@@ -1063,7 +1065,7 @@
               <a href="tel:+61402553169">📞 +61 402 553 169</a>
             `;
           } else {
-            bubble.className = `imsg-bubble imsg-bubble-anim${msg.sent ? ' sent' : ''}`;
+            bubble.className = 'imsg-bubble imsg-bubble-anim';
             bubble.textContent = msg.text;
           }
           body.appendChild(bubble);
