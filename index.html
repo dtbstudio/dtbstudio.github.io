@@ -494,7 +494,7 @@
   </div>
   <div class="click-ring" id="clickRing"></div>
 
-  <div id="intro">
+  <div id="intro" onclick="openFinder()" style="cursor:pointer;">
     <img id="folder-img" src="images/Loading.png" alt="D.T.B Studio"/>
     <span id="folder-label">D.T.B Studio</span>
     <span id="item-count">8 items</span>
@@ -765,11 +765,15 @@
       }, 500);
     });
 
+    let finderOpened = false;
     function openFinder() {
+      if (finderOpened) return;
+      finderOpened = true;
       document.getElementById('intro').style.opacity = '0';
       setTimeout(() => { document.getElementById('intro').style.display='none'; }, 800);
       document.getElementById('finder').classList.add('visible');
     }
+    setTimeout(openFinder, 3000);
 
     function toggleFolder() {
       folderOpen = !folderOpen;
