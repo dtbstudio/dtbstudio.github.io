@@ -972,7 +972,7 @@
         <div style="${isMobile ? '' : 'overflow-y:auto; height:100%;'} background:#fff;">
           <div style="display:flex; flex-wrap:wrap; gap:2px;">
             ${p.images.map((im, idx) => `
-              <img src="${im.src}" style="width:${im.layout === 'half' ? 'calc(50% - 1px)' : '100%'}; height:${im.layout === 'half' ? '700px' : 'auto'}; display:block; object-fit:${im.layout === 'half' ? 'cover' : 'unset'}; opacity:0; background:#f0f0f0;" onload="this.style.transition='none'; this.style.animation='fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) ${idx * 0.15}s forwards';"/>
+              <img src="${im.src}" style="width:${im.layout === 'half' ? 'calc(50% - 1px)' : '100%'}; height:${im.layout === 'half' ? '700px' : 'auto'}; display:block; object-fit:${im.layout === 'half' ? 'cover' : 'unset'}; opacity:0; background:#f0f0f0;" onload="const el=this; setTimeout(() => { el.style.transition='opacity 0.6s ease'; el.style.opacity='1'; }, ${idx * 120});"/>
             `).join('')}
           </div>
           <div style="background:#fafafa; border-top:1px solid #e0e0e0; padding:24px;">
