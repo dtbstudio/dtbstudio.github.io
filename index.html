@@ -979,7 +979,7 @@
         <div style="${isMobile ? '' : 'overflow-y:auto; height:100%;'} background:#fff;">
           <div style="display:flex; flex-wrap:wrap; gap:2px;">
             ${p.images.map((im, idx) => `
-              <img src="${im.src}" style="width:${im.layout === 'half' ? 'calc(50% - 1px)' : '100%'}; height:${im.layout === 'half' ? '700px' : 'auto'}; display:block; object-fit:${im.layout === 'half' ? 'cover' : 'unset'}; opacity:0; background:#f0f0f0;" onload="imgFadeIn(this, ${idx});" onerror="imgFadeIn(this, ${idx});"/>
+              <img src="${im.src}" style="width:${im.layout === 'half' ? 'calc(50% - 1px)' : '100%'}; height:${im.layout === 'half' ? '700px' : 'auto'}; display:block; object-fit:${im.layout === 'half' ? 'cover' : 'unset'};"/>
             `).join('')}
           </div>
           <div style="background:#fafafa; border-top:1px solid #e0e0e0; padding:24px;">
