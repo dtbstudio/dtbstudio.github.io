@@ -715,14 +715,6 @@
       document.getElementById('fakeCursor').innerHTML = `<div style="font-size:20px; line-height:1;">${appleFrames[appleIndex]}</div>`;
     }, 1500);
 
-    // 모든 프로젝트 이미지 백그라운드 프리로드
-    [...projects, ...currentlyProjects].forEach(p => {
-      p.images.forEach(im => {
-        const img = new Image();
-        img.src = im.src;
-      });
-    });
-
     document.addEventListener('mousemove', e => {
       if (!isAuto) {
         cursorX = e.clientX; cursorY = e.clientY;
@@ -1099,6 +1091,14 @@
       input.value = '';
       body.scrollTop = body.scrollHeight;
     }
+
+    // 모든 프로젝트 이미지 백그라운드 프리로드
+    [...projects, ...currentlyProjects].forEach(p => {
+      p.images.forEach(im => {
+        const img = new Image();
+        img.src = im.src;
+      });
+    });
   </script>
 </body>
 </html>
