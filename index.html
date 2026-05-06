@@ -767,6 +767,7 @@
     function openFinder() {
       if (finderOpened) return;
       finderOpened = true;
+      isAuto = false;
       document.getElementById('intro').style.opacity = '0';
       setTimeout(() => { document.getElementById('intro').style.display='none'; }, 800);
       document.getElementById('finder').classList.add('visible');
