@@ -749,21 +749,19 @@
       setTimeout(() => cb&&cb(), 400);
     }
 
-    window.addEventListener('load', () => {
-      cursorX = window.innerWidth / 2 - 60;
-      cursorY = window.innerHeight / 2 + 60;
-      fakeCursor.style.left = cursorX+'px';
-      fakeCursor.style.top  = cursorY+'px';
-      setTimeout(() => {
-        const r = folderImg.getBoundingClientRect();
-        animateCursorTo(r.left+r.width/2, r.top+r.height/2, 1500, () => {
-          doClick(r.left+r.width/2, r.top+r.height/2, () => {
-            openFinder();
-            setTimeout(() => { isAuto = false; typeSearch(); }, 800);
-          });
+    cursorX = window.innerWidth / 2 - 60;
+    cursorY = window.innerHeight / 2 + 60;
+    fakeCursor.style.left = cursorX+'px';
+    fakeCursor.style.top  = cursorY+'px';
+    setTimeout(() => {
+      const r = folderImg.getBoundingClientRect();
+      animateCursorTo(r.left+r.width/2, r.top+r.height/2, 1500, () => {
+        doClick(r.left+r.width/2, r.top+r.height/2, () => {
+          openFinder();
+          setTimeout(() => { isAuto = false; typeSearch(); }, 800);
         });
-      }, 500);
-    });
+      });
+    }, 500);
 
     let finderOpened = false;
     function openFinder() {
@@ -772,6 +770,11 @@
       document.getElementById('intro').style.opacity = '0';
       setTimeout(() => { document.getElementById('intro').style.display='none'; }, 800);
       document.getElementById('finder').classList.add('visible');
+      setTimeout(() => {
+        [...projects, ...currentlyProjects].forEach(p => {
+          p.images.forEach(im => { new Image().src = im.src; });
+        });
+      }, 2000);
     }
     setTimeout(openFinder, 3000);
 
@@ -1096,13 +1099,6 @@
       body.scrollTop = body.scrollHeight;
     }
 
-    // 모든 프로젝트 이미지 백그라운드 프리로드
-    [...projects, ...currentlyProjects].forEach(p => {
-      p.images.forEach(im => {
-        const img = new Image();
-        img.src = im.src;
-      });
-    });
   </script>
 </body>
 </html>
